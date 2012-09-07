@@ -16,7 +16,7 @@ Installation
     
 Clone `ndnmap`.
 
-    git clone https://shakfu@github.com/shakfu/ndnmap.git
+    git clone https://WU-ARL@github.com/WU-ARL/ndnmap.git
     cd ndnmap
 
 Install the packages in ``deploy/requirements.txt``.
