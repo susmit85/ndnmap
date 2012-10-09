@@ -6,8 +6,7 @@ export DEBIAN_FRONTEND=noninteractive
 
 #./install_mysql 
 #./init_app_db -d ndnmap -u ndnmap -p mysql
-#mysqladmin -u root password mysql
-# sudo ./install_django -n ndnmap -U ndnmap -w example.com -s http://www.arl.wustl.edu/~jdd/NDN/static/ -P mysql -g git://github.com/shakfu/ndnmap.git -u ndnmap -p /home/ndnmap/ndnmap -f /home/ndnmap/ndnmap/deploy/initial_data.json
+# ./install.sh -D ndnmap -n ndnmap -U ndnmap -w example.com -s http://www.arl.wustl.edu/~jdd/NDN/static -P mysql -g https://WU-ARL@github.com/WU-ARL/ndnmap.git -u ndnmap -p /home/ndnmap/ndnmap -f /home/ndnmap/ndnmap/WebServer/deploy/initial_data.json 
 
 usage() {
     cat <<EOF
@@ -187,9 +186,9 @@ install_webserver() {
     WSGIDaemonProcess $NAME user=www-data group=www-data maximum-requests=10000 python-path=/home/$LOCAL_USER/env/lib/python2.7/site-packages
     WSGIProcessGroup $NAME
 
-    WSGIScriptAlias / $PROJECT_ROOT/deploy/app.wsgi
+    WSGIScriptAlias / $PROJECT_ROOT/WebServer/deploy/app.wsgi
 
-    <Directory $PROJECT_ROOT/deploy>
+    <Directory $PROJECT_ROOT/WebServer/deploy>
         Order deny,allow
         Allow from all
     </Directory>
