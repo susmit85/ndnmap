@@ -236,7 +236,7 @@ configure_local_settings() {
     if [[ "$BRANCH" =~ "develop" ]]; then
        debug="True"
     fi 
-    cat <<EOF | sudo -u $LOCAL_USER tee $PROJECT_ROOT/settings_local.py
+    cat <<EOF | sudo -u $LOCAL_USER tee $PROJECT_ROOT/WebServer/settings_local.py
 DEBUG = $debug
 TEMPLATE_DEBUG = $debug
 SERVE_MEDIA = False
