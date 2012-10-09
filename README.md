@@ -19,6 +19,10 @@ Clone `ndnmap`.
     git clone https://WU-ARL@github.com/WU-ARL/ndnmap.git
     cd ndnmap
 
+I am working on an install script to make this easier. It is in ndnmap/WebServer/install.sh
+
+-------------------------------------
+Here are the old install directions:
 Install the packages in ``deploy/requirements.txt``.
 
   * ``pip`` (and optionally [virtualenv][1]) simplifies the process
@@ -27,6 +31,7 @@ Install the packages in ``deploy/requirements.txt``.
         pip install -r deploy/requirements.txt
         
 
+-------------------------------------
 
 Obtain a [key for the Google maps API][2] and enter the API key in
 `ndnmap/settings.py`:
