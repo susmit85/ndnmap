@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# This is an Install script that works on Ubuntu 12.04. That is the only place it has been tested.
+
 SCRIPT_NAME=$0
 set -e # die on any error
 export DEBIAN_FRONTEND=noninteractive
