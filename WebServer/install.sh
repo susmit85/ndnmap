@@ -185,7 +185,8 @@ install_webserver() {
     ErrorLog ${APACHE_LOG_DIR}/${SITE_NAME}_error.log
     CustomLog ${APACHE_LOG_DIR}/${SITE_NAME}_access.log combined
 
-    WSGIDaemonProcess $NAME user=www-data group=www-data maximum-requests=10000 python-path=/home/$LOCAL_USER/env/lib/python2.7/site-packages
+    #WSGIDaemonProcess $NAME user=www-data group=www-data maximum-requests=10000 python-path=/home/$LOCAL_USER/env/lib/python2.7/site-packages
+    WSGIDaemonProcess $NAME user=www-data group=www-data maximum-requests=10000 
     WSGIProcessGroup $NAME
 
     WSGIScriptAlias / $PROJECT_ROOT/WebServer/deploy/app.wsgi
@@ -261,10 +262,10 @@ EOF
 }
 
 django_syncdb() {
-    sudo -u $LOCAL_USER /home/$LOCAL_USER/env/bin/python $PROJECT_ROOT/WebServer/manage.py syncdb --noinput
+    sudo -u $LOCAL_USER python $PROJECT_ROOT/WebServer/manage.py syncdb --noinput
     if [ -f "$FIXTURE" ]; then
         # load initial data
-        sudo -u $LOCAL_USER /home/$LOCAL_USER/env/bin/python $PROJECT_ROOT/WebServer/manage.py loaddata $FIXTURE
+        sudo -u $LOCAL_USER python $PROJECT_ROOT/WebServer/manage.py loaddata $FIXTURE
     fi 
 }
 
