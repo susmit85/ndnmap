@@ -259,10 +259,10 @@ EOF
 }
 
 django_syncdb() {
-    sudo -u $LOCAL_USER /home/$LOCAL_USER/env/bin/python $PROJECT_ROOT/manage.py syncdb --noinput
+    sudo -u $LOCAL_USER /home/$LOCAL_USER/env/bin/python $PROJECT_ROOT/WebServer/manage.py syncdb --noinput
     if [ -f "$FIXTURE" ]; then
         # load initial data
-        sudo -u $LOCAL_USER /home/$LOCAL_USER/env/bin/python $PROJECT_ROOT/manage.py loaddata $FIXTURE
+        sudo -u $LOCAL_USER /home/$LOCAL_USER/env/bin/python $PROJECT_ROOT/WebServer/manage.py loaddata $FIXTURE
     fi 
 }
 
@@ -331,7 +331,7 @@ fi
 
 activate_webserver
   
-#django_syncdb
+django_syncdb
 django_print_info
 
 
