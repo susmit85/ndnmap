@@ -22,7 +22,9 @@ Clone `ndnmap`.
 
    > ./install.sh -D ndnmap -n ndnmap -U ndnmap -w example.com -s http://www.arl.wustl.edu/~jdd/NDN/static -P <mysql-password> -g https://WU-ARL@github.com/WU-ARL/ndnmap.git -u ndnmap -p /home/ndnmap/ndnmap -f /home/ndnmap/ndnmap/WebServer/deploy/initial_data.json
 
-   > sudo vi /home/ndnmap/ndnmap/WebServer/settings.py    # and add your Google Maps Key in place of XXX on the line with GMAP_API_KEY='XXX'
+   # and add your Google Maps Key in place of XXX on the line with GMAP_API_KEY='XXX'
+
+   > sudo vi /home/ndnmap/ndnmap/WebServer/settings.py    
 
    # restart the web server 
 
