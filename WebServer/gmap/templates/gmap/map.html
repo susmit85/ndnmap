@@ -311,6 +311,18 @@ See LICENSE for details.
                             fontSize: 18,
                             align: 'center',
                             });
+
+                        // This is special condition for UCLA to PKU (Peking University in Beijing) link
+                        if (start.position[1] < -90.0)  {
+                           if (end.position[1] > 90.0) {
+                             // Below puts the label in the center of the link which is in the middle of the Pacific
+                             //label.position = new google.maps.LatLng(label.position.lat(), label.position.lng() + 180.0);
+                             // This puts the label closer to UCLA so we can see it when just looking at US
+                             label.position = new google.maps.LatLng(label.position.lat()-1.5, start.position[1] - 5.0);
+                             //label.fontSize = 24;
+                           } 
+                        }
+
                         link_obj[link.id] = {'path':linkPath, 'label':label};
                         link_obj.query += link.id + '+';
                     });
