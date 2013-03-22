@@ -229,6 +229,7 @@ usage(const char *progname)
             " Reply with performance data to interest it receives."
             "\n"
             "  -h - print this message and exit"
+            "  -i <ipaddr> - host ip address (of this host) to be included in interests"
             "\n", progname);
     exit(1);
 }
@@ -327,6 +328,7 @@ main(int argc, char **argv)
     int offset = 0;
     int skiplines = 0;
     int i = 0;
+    char myhost_name[128];
 
     strcpy(progname, argv[0]);
  
@@ -339,34 +341,56 @@ main(int argc, char **argv)
     bandwidth_type[0] = '\0';
     myipaddr[0] = '\0';
 
-    char myhost_name[128];
-    res = gethostname(myhost_name, 128);
-    if (res != 0)
-      {
-	perror("Could not get my host name");
-	exit(1);
-      }
+    // Parse cmd-line arguments
+    while ((res = getopt(argc, argv, "hi:")) != -1) {
+        switch (res) {
+            default:
+            case 'i':
+                strcpy(myipaddr, optarg);
+                break;
 
-    addr_result = gethostbyname(myhost_name);
-    if (addr_result == NULL)
-      {
-	perror("Could not get my host ipaddr: gethostbyname() failed");
-	exit(1);
-      }
-    i = 0;
-    while(1)
-      {
-	if (addr_result->h_addr_list[i] == NULL) break;
-	bzero((char*)&naddr, sizeof(naddr));
-	bcopy((char*)addr_result->h_addr_list[i], (char*)&naddr.s_addr, addr_result->h_length);
-	tmp_str = inet_ntoa(naddr);
-	if (strncmp(tmp_str, "10.", 3) && strncmp(tmp_str, "127.0.", 6) && tmp_str[0] != '0')
-	  {
-	    strcpy(myipaddr, tmp_str);
-	    break;
-	  }
-	++i;
-      }
+            case 'h':
+                usage(progname);
+                break;
+        }
+    }
+    argc -= optind;
+    argv += optind;
+    
+    if (argv[0] != NULL)
+      poll_period = atoi(argv[0]);
+
+    printf("%s polling every %d sec.\n", progname, poll_period);
+
+    if (myipaddr[0] == '\0') {
+      res = gethostname(myhost_name, 128);
+      if (res != 0)
+        {
+	  perror("Could not get my host name");
+	  exit(1);
+        }
+  
+      addr_result = gethostbyname(myhost_name);
+      if (addr_result == NULL)
+        {
+	  perror("Could not get my host ipaddr: gethostbyname() failed");
+	  exit(1);
+        }
+      i = 0;
+      while(1)
+        {
+	  if (addr_result->h_addr_list[i] == NULL) break;
+	  bzero((char*)&naddr, sizeof(naddr));
+	  bcopy((char*)addr_result->h_addr_list[i], (char*)&naddr.s_addr, addr_result->h_length);
+	  tmp_str = inet_ntoa(naddr);
+	  if (strncmp(tmp_str, "10.", 3) && strncmp(tmp_str, "127.0.", 6) && tmp_str[0] != '0')
+	    {
+	      strcpy(myipaddr, tmp_str);
+	      break;
+	    }
+	  ++i;
+        }
+    }
 
     if (strlen(myipaddr) > 0)
       printf("My IPaddr is %s\n", myipaddr);
@@ -376,28 +400,13 @@ main(int argc, char **argv)
 	exit(1);
       }
 
-    // Parse cmd-line arguments
-    while ((res = getopt(argc, argv, "h:")) != -1) {
-        switch (res) {
-            default:
-            case 'h':
-                usage(progname);
-                break;
-        }
-    }
+
     // Connect to ccnd
     ccn = ccn_create();
     if (ccn_connect(ccn, NULL) == -1) {
         perror("Could not connect to ccnd");
         exit(1);
     }
-    argc -= optind;
-    argv += optind;
-    
-    if (argv[0] != NULL)
-      poll_period = atoi(argv[0]);
-
-    printf("%s polling every %d sec.\n", progname, poll_period);
     xml_response = malloc(sizeof(*xml_response)*size);
     res = 0;
     while (res >= 0 )
