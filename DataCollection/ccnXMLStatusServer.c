@@ -36,7 +36,7 @@
 #include <netdb.h>
 
 /* interest name format for status ccnx:/ndn/wustl.edu/ndnstatus/<server ip>/<face ip>/<timestamp>/<tx bytes>/<rx bytes>/ */
-#define DEBUG 0
+#define DEBUG 1
 #define MON_NAME_PREFIX "ccnx:/ndn/wustl.edu/ndnstatus"
 
 char map_server_addr[128];
@@ -48,8 +48,8 @@ struct face_status
   char timestamp[50];
   char tx[50];
   char rx[50];
-  int rxbits;
-  int txbits;
+  unsigned long rxbits;
+  unsigned long txbits;
   int id;
 };
 
@@ -163,7 +163,7 @@ incoming_interest(
 	{
 	  strncpy(fstatus.rx, (const char*)p, size);
 	  fstatus.rx[size] = '\0';
-	  fstatus.rxbits = (atoi(fstatus.rx)) * 8;
+	  fstatus.rxbits = (atol(fstatus.rx)) * 8;
 	  if (DEBUG)
 	    printf(" c%d:%s,", endc, fstatus.rx);
 	}
@@ -176,7 +176,7 @@ incoming_interest(
 	{
 	  strncpy(fstatus.tx, (const char*)p, size);
 	  fstatus.tx[size] = '\0';
-	  fstatus.txbits = (atoi(fstatus.tx)) * 8;
+	  fstatus.txbits = (atol(fstatus.tx)) * 8;
 	  if (DEBUG)
 	    printf(" c%d:%s,", endc, fstatus.tx);
 	}
@@ -235,7 +235,7 @@ incoming_interest(
       fstatus.id = get_link_id(fstatus.sipaddr, fstatus.fipaddr);
       if (fstatus.id >= 0)
 	{
-	  sprintf(cmd_str, "curl -L http://%s/bw/%d/%s/%d/%d \n", map_server_addr, fstatus.id, fstatus.timestamp, fstatus.txbits, fstatus.rxbits);
+	  sprintf(cmd_str, "curl -L http://%s/bw/%d/%s/%u/%u \n", map_server_addr, fstatus.id, fstatus.timestamp, fstatus.txbits, fstatus.rxbits);
 	  if (DEBUG)
 	    printf("%s\n", cmd_str);
 	  system(cmd_str);
