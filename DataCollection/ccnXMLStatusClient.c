@@ -90,7 +90,7 @@ start_element(void *data, const char *el, const char **attr) {
 struct ccn_charbuf*
 make_template(void)
 {
-  intmax_t lifetime = INTEREST_LIFETIME_SEC << 12;
+  intmax_t lifetime = INTEREST_LIFETIME_SEC << 2;
   struct ccn_charbuf *templ = ccn_charbuf_create();
   ccn_charbuf_append_tt(templ, CCN_DTAG_Interest, CCN_DTAG);
   ccn_charbuf_append_tt(templ, CCN_DTAG_Name, CCN_DTAG);
@@ -100,7 +100,7 @@ make_template(void)
   ccn_charbuf_append_closer(templ); // </MaxSuffixComponents>
   ccnb_append_tagged_binary_number(templ, CCN_DTAG_InterestLifetime, lifetime);
   ccn_charbuf_append_closer(templ); // </InterestLifetime>
-  ccn_charbuf_append_closer(templ); /* </Interest> */
+  //ccn_charbuf_append_closer(templ); /* </Interest> */
   return(templ);
 }
 
@@ -108,7 +108,7 @@ make_template(void)
 int
 send_interest(struct face_status* face)
 {
-  //if (strlen(face->ipaddr) <= 0) return 0;
+  if (strlen(face->ipaddr) <= 0) return 0;
   struct ccn_charbuf *templ;
   int res;
   // set the callback for incoming interests.
@@ -130,7 +130,7 @@ send_interest(struct face_status* face)
   //in_interest.data = ccn;
     
   templ = make_template();
-  res = ccn_express_interest(ccn, name, NULL, NULL);//&in_interest, templ);
+  res = ccn_express_interest(ccn, name, NULL, templ);//&in_interest, templ);
   if(res < 0) fprintf(stderr, "%s: error expressing interest: %s\n", progname, tmp_name);
   else if (DEBUG)
     printf("Interest sent! %s\n", tmp_name);

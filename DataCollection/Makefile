@@ -14,7 +14,7 @@
 #    limitations under the License.
 #
 
-CCNDIR = ../ccnx
+CCNDIR = ../../ccnx
 
 DEBUG = -g
 
