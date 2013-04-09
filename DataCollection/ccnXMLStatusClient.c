@@ -48,8 +48,13 @@ char bandwidth_type[16];
 char myipaddr[20];
 int Depth;
 struct ccn *ccn = NULL;
+//struct ccn_closure *in_data_ptr = NULL;
 char progname[64];
 char current_time[50];
+
+struct mydata {
+	void* none;
+};
 
 struct face_status
 {
@@ -105,6 +110,41 @@ make_template(void)
 }
 
 
+// cb for incoming packets
+enum ccn_upcall_res
+incoming_data(
+    struct ccn_closure *selfp,
+    enum ccn_upcall_kind kind,
+    struct ccn_upcall_info *info)
+{
+  switch (kind)
+    {
+    case CCN_UPCALL_FINAL:
+      if (DEBUG)
+	printf("received CCN_UPCALL_FINAL\n");
+      free(selfp);
+      break;
+    case CCN_UPCALL_INTEREST:
+      if (DEBUG)
+	printf("received interest\n");
+      break;
+    case CCN_UPCALL_INTEREST_TIMED_OUT:
+      if (DEBUG)
+	printf("Interest timeout...\n");
+      break;
+    case CCN_UPCALL_CONTENT:
+      if (DEBUG)
+	printf("content\n");
+      break;
+    default:
+      if (DEBUG)
+	printf("something else...kind = %d\n",kind);
+      break;
+    }
+
+  return(CCN_UPCALL_RESULT_OK);
+}
+
 int
 send_interest(struct face_status* face)
 {
@@ -130,12 +170,19 @@ send_interest(struct face_status* face)
   //in_interest.data = ccn;
     
   templ = make_template();
-  res = ccn_express_interest(ccn, name, NULL, templ);//&in_interest, templ);
+  //res = 0;
+  struct ccn_closure* in_data_ptr = malloc(sizeof(*in_data_ptr));
+  in_data_ptr->p = &incoming_data;
+  in_data_ptr->data = NULL;
+  in_data_ptr->refcount = 0;
+  res = ccn_express_interest(ccn, name, in_data_ptr, templ);
+  //res = ccn_express_interest(ccn, name, NULL, templ);
   if(res < 0) fprintf(stderr, "%s: error expressing interest: %s\n", progname, tmp_name);
   else if (DEBUG)
     printf("Interest sent! %s\n", tmp_name);
 
   ccn_charbuf_destroy(&templ);
+  ccn_charbuf_destroy(&name);
   return res;
 }
 
@@ -159,7 +206,11 @@ end_element(void *data, const char *el) {
   else if (strcmp(el, "faces") == 0)
     {
       parser_on = 0;
-      current_face = NULL;
+      if (current_face != NULL)
+	{
+	  free(current_face);
+	  current_face = NULL;
+	}
       current_element[0] = '\0';
     }
   Depth--;
@@ -219,7 +270,6 @@ char_data_handler(void* data, const char* s, int len)
 	}
     }
 }
-
 
 static void
 usage(const char *progname)
@@ -377,6 +427,10 @@ main(int argc, char **argv)
 	  exit(1);
         }
       i = 0;
+      // setting cb to incoming data packets
+      //struct mydata mydata = { 0 };
+      // struct ccn_closure in_data = {.p=&incoming_data, .data=ccn};//&mydata};
+      //in_data_ptr = &in_data;
       while(1)
         {
 	  if (addr_result->h_addr_list[i] == NULL) break;
@@ -402,15 +456,17 @@ main(int argc, char **argv)
 
 
     // Connect to ccnd
+    
     ccn = ccn_create();
     if (ccn_connect(ccn, NULL) == -1) {
         perror("Could not connect to ccnd");
         exit(1);
-    }
+	}
     xml_response = malloc(sizeof(*xml_response)*size);
     res = 0;
     while (res >= 0 )
-      {
+      {	
+	res = ccn_run(ccn, 200);
 	parser = XML_ParserCreate(NULL);
 	if (! parser) {
 	  fprintf(stderr, "Couldn't allocate memory for parser\n");
@@ -418,6 +474,7 @@ main(int argc, char **argv)
 	}
 	XML_SetElementHandler(parser, start_element, end_element);
 	XML_SetCharacterDataHandler(parser, char_data_handler);
+	
 	res = SendHTTPGetRequest(xml_response);
 	if (res < 1)
 	  {
@@ -438,7 +495,13 @@ main(int argc, char **argv)
 	    perror("XML parse error\n");
 	  }
 	else res = 1;
+	if (current_face != NULL)
+	  {
+	    free(current_face);
+	    current_face = NULL;
+	  }
 	XML_ParserFree(parser);
+	
 	sleep(poll_period);
       }
     free(xml_response);
