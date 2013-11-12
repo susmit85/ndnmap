@@ -23,6 +23,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdbool.h>
 #include <ccn/ccn.h>
 #include <ccn/uri.h>
 #include <ccn/keystore.h>
@@ -65,6 +66,71 @@ struct face_status
 };
 
 struct face_status* current_face = NULL;
+
+struct interestData {
+  bool valid;
+  char ipaddr[50];
+  unsigned long tx;
+  unsigned long rx;
+  char current_time[50];
+};
+
+#define NUM_RECORDED_INTERESTS 2048
+
+struct interestData recordedInterestData[NUM_RECORDED_INTERESTS];
+int recordedInterestIndex=0;
+
+void 
+initInterests()
+{
+  int i;
+  for (i=0; i < NUM_RECORDED_INTERESTS; i++)
+    recordedInterestData[i].valid = false;
+  recordedInterestIndex = 0;
+}
+
+void 
+printInterests()
+{
+  int i;
+  for (i=0; i < recordedInterestIndex; i++) {
+    if (recordedInterestData[i].valid == false)
+      return;
+    else {
+      printf("interest[%i]: %s %ld %ld %s\n", i, recordedInterestData[i].ipaddr ,recordedInterestData[i].tx ,recordedInterestData[i].rx ,recordedInterestData[i].current_time);
+    }
+  }
+}
+
+void
+recordInterest(char *ipaddr, char *rx, char *tx, char *time)
+{
+  int i;
+
+  for (i=0; i < recordedInterestIndex; i++) {
+    if (recordedInterestData[i].valid && !strcmp(recordedInterestData[i].ipaddr, ipaddr)) {
+      // Found it!
+      //printf("recordInterest: Found an already recorded ipaddr: %s\n", ipaddr);
+      recordedInterestData[i].tx += atol(tx);
+      recordedInterestData[i].rx += atol(rx);
+      strcpy(recordedInterestData[i].current_time, time);
+      return;
+    }
+  }
+  if (i < NUM_RECORDED_INTERESTS) {
+    recordedInterestData[i].valid = true;
+    recordedInterestData[i].tx = atol(tx);
+    recordedInterestData[i].rx = atol(rx);
+    strcpy(recordedInterestData[i].current_time, time);
+    strcpy(recordedInterestData[i].ipaddr, ipaddr);
+    recordedInterestIndex++;
+  }
+  else {
+    printf("recordInterest: TOO MANY FACES!!!\n");
+  }
+
+}
+
 
 void
 start_element(void *data, const char *el, const char **attr) {
@@ -158,8 +224,13 @@ send_interest(struct face_status* face)
   char tmp_name[512];
   
   name = ccn_charbuf_create();
+
   
   sprintf(tmp_name, "%s/%s/%s/%s/%s/%s", MON_NAME_PREFIX, myipaddr, face->ipaddr, current_time, face->tx, face->rx);
+  //printf("tmp_name: %s\n", tmp_name);
+  recordInterest(face->ipaddr, face->rx, face->tx, current_time);
+/*
+
   res = ccn_name_from_uri(name, tmp_name);
   if (res < 0)
     {
@@ -175,7 +246,7 @@ send_interest(struct face_status* face)
   in_data_ptr->p = &incoming_data;
   in_data_ptr->data = NULL;
   in_data_ptr->refcount = 0;
-  res = ccn_express_interest(ccn, name, in_data_ptr, templ);
+//  res = ccn_express_interest(ccn, name, in_data_ptr, templ);
   //res = ccn_express_interest(ccn, name, NULL, templ);
   if(res < 0) fprintf(stderr, "%s: error expressing interest: %s\n", progname, tmp_name);
   else if (DEBUG)
@@ -183,7 +254,66 @@ send_interest(struct face_status* face)
 
   ccn_charbuf_destroy(&templ);
   ccn_charbuf_destroy(&name);
+*/
   return res;
+}
+void
+sendRecordedInterests()
+{
+  struct ccn_charbuf *templ;
+  int res;
+  // set the callback for incoming interests.
+  //struct ccn_closure in_interest; 
+  // Create the name for the prefix we're interested in
+  struct ccn_charbuf *name = NULL;
+  char tmp_name[512];
+  int i;
+
+  for (i=0; i < recordedInterestIndex; i++) {
+    if (recordedInterestData[i].valid == false)
+      return;
+    else {
+      //printf("sendRecordedInterests(): interest[%i]: %s %ld %ld %s\n", i, recordedInterestData[i].ipaddr ,
+      //                                                                  recordedInterestData[i].tx ,
+      //                                                                  recordedInterestData[i].rx ,
+      //                                                                  recordedInterestData[i].current_time);
+  
+      name = ccn_charbuf_create();
+
+  
+      sprintf(tmp_name, "%s/%s/%s/%s/%ld/%ld", MON_NAME_PREFIX, myipaddr, 
+                                             recordedInterestData[i].ipaddr, 
+                                             recordedInterestData[i].current_time, 
+                                             recordedInterestData[i].tx, 
+                                             recordedInterestData[i].rx);
+//printf("sendRecordedInterests(): tmp_name: %s\n", tmp_name);
+
+      res = ccn_name_from_uri(name, tmp_name);
+      if (res < 0)
+        {
+          fprintf(stderr, "%s: bad ccn URI: %s\n", progname, tmp_name);
+        }
+  
+      // Allocate some working space for storing content
+      //in_interest.data = ccn;
+    
+      templ = make_template();
+      //res = 0;
+      struct ccn_closure* in_data_ptr = malloc(sizeof(*in_data_ptr));
+      in_data_ptr->p = &incoming_data;
+      in_data_ptr->data = NULL;
+      in_data_ptr->refcount = 0;
+      res = ccn_express_interest(ccn, name, in_data_ptr, templ);
+      //res = ccn_express_interest(ccn, name, NULL, templ);
+      if(res < 0) fprintf(stderr, "%s: error expressing interest: %s\n", progname, tmp_name);
+      else if (DEBUG)
+        printf("Interest sent! %s\n", tmp_name);
+    
+      ccn_charbuf_destroy(&templ);
+      ccn_charbuf_destroy(&name);
+    }
+
+  }
 }
 
 void
@@ -466,6 +596,7 @@ main(int argc, char **argv)
     res = 0;
     while (res >= 0 )
       {	
+initInterests();
 	res = ccn_run(ccn, 200);
 	parser = XML_ParserCreate(NULL);
 	if (! parser) {
@@ -502,6 +633,9 @@ main(int argc, char **argv)
 	  }
 	XML_ParserFree(parser);
 	
+        //printf("\n");
+        //printInterests();
+        sendRecordedInterests();
 	sleep(poll_period);
       }
     free(xml_response);
