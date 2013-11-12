@@ -1,3 +1,4 @@
+
 /**
  * @file ccnClientPerformanceCollector.c
  *  Receive interest packet and respond with sending data packets include NDN traffic performance details
@@ -36,7 +37,7 @@
 #include <netdb.h>
 
 /* interest name format for status ccnx:/ndn/wustl.edu/ndnstatus/<server ip>/<face ip>/<timestamp>/<tx bytes>/<rx bytes>/ */
-#define DEBUG 1
+#define DEBUG 0
 #define MON_NAME_PREFIX "ccnx:/ndn/wustl.edu/ndnstatus"
 
 char map_server_addr[128];
@@ -235,11 +236,26 @@ incoming_interest(
       fstatus.id = get_link_id(fstatus.sipaddr, fstatus.fipaddr);
       if (fstatus.id >= 0)
 	{
-	  sprintf(cmd_str, "curl -L http://%s/bw/%d/%s/%u/%u \n", map_server_addr, fstatus.id, fstatus.timestamp, fstatus.txbits, fstatus.rxbits);
+	  //sprintf(cmd_str, "curl -s -L http://%s/bw/%d/%s/%u/%u \n", map_server_addr, fstatus.id, fstatus.timestamp, fstatus.txbits, fstatus.rxbits);
+	  sprintf(cmd_str, "http://%s/bw/%d/%s/%u/%u", map_server_addr, fstatus.id, fstatus.timestamp, fstatus.txbits, fstatus.rxbits); 
 	  if (DEBUG)
 	    printf("%s\n", cmd_str);
-	  system(cmd_str);
-	}
+          //system(cmd_str);
+          int status;
+          // check for zombies
+          int deadChildPid = waitpid(-1, &status, WNOHANG);
+          int pid;
+          if ((pid = fork()) < 0)
+            printf("for failed for curl %s\n", cmd_str);
+          else
+            {
+               if (pid == 0)
+                  execl("/usr/bin/curl","curl", "-s", "-L", cmd_str, NULL);
+            }
+          // check for zombies again
+          deadChildPid = waitpid(-1, &status, WNOHANG);
+        }
+
       return(CCN_UPCALL_RESULT_INTEREST_CONSUMED);
       //}
       //if (DEBUG)
@@ -364,6 +380,7 @@ main(int argc, char **argv)
     
     return EXIT_SUCCESS;
 }
+
 
 
 
