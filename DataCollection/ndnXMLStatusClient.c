@@ -40,7 +40,7 @@
 
 
 #define DEBUG 0
-#define MON_NAME_PREFIX "ndnx:/ndn/wustl.edu/ndnstatus"
+#define MON_NAME_PREFIX "ndn:/ndn/edu/wustl/ndnstatus"
 #define INTEREST_LIFETIME_SEC 1
 
 int parser_on = 0;
@@ -405,7 +405,7 @@ static void
 usage(const char *progname)
 {
     fprintf(stderr,
-            "%s ndnx:/a/b\n"
+            "%s ndn:/a/b\n"
             " Reply with performance data to interest it receives."
             "\n"
             "  -h - print this message and exit"

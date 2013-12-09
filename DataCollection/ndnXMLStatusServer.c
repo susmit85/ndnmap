@@ -36,9 +36,16 @@
 #include <netinet/in.h>
 #include <netdb.h>
 
-/* interest name format for status ndnx:/ndn/wustl.edu/ndnstatus/<server ip>/<face ip>/<timestamp>/<tx bytes>/<rx bytes>/ */
+#include <string.h>
+#include <ndn/ndn.h>
+#include <ndn/charbuf.h>
+#include <ndn/coding.h>
+#include <ndn/uri.h>
+
+
+/* interest name format for status ndn:/ndn/edu/wustl/ndnstatus/<server ip>/<face ip>/<timestamp>/<tx bytes>/<rx bytes>/ */
 #define DEBUG 0
-#define MON_NAME_PREFIX "ndnx:/ndn/wustl.edu/ndnstatus"
+#define MON_NAME_PREFIX "ndn:/ndn/edu/wustl/ndnstatus"
 
 char map_server_addr[128];
 
@@ -231,7 +238,7 @@ incoming_interest(
       
       //if (!strncmp((char*)name->buf, MON_NAME_PREFIX, strlen(MON_NAME_PREFIX)))
       //{
-      //sscanf((const char*)name->buf, "ndnx:/ndn/wustl.edu/ndnstatus/%s/%s/%s/%s/%s", fstatus.sipaddr, fstatus.fipaddr, fstatus.timestamp, fstatus.tx, fstatus.rx);
+      //sscanf((const char*)name->buf, "ndn:/ndn/edu/wustl/ndnstatus/%s/%s/%s/%s/%s", fstatus.sipaddr, fstatus.fipaddr, fstatus.timestamp, fstatus.tx, fstatus.rx);
 	  
       fstatus.id = get_link_id(fstatus.sipaddr, fstatus.fipaddr);
       if (fstatus.id >= 0)
@@ -268,7 +275,192 @@ incoming_interest(
     }
   return(NDN_UPCALL_RESULT_OK);
 }
-    
+static int
+hexit(int c)
+{
+    if ('0' <= c && c <= '9')
+        return(c - '0');
+    if ('A' <= c && c <= 'F')
+        return(c - 'A' + 10);
+    if ('a' <= c && c <= 'f')
+        return(c - 'a' + 10);
+    return(-1);
+}
+
+static int
+ndn_name_last_component_offset(const unsigned char *ndnb, size_t size)
+{
+    struct ndn_buf_decoder decoder;
+    struct ndn_buf_decoder *d = ndn_buf_decoder_start(&decoder, ndnb, size);
+    int res = -1;
+    if (ndn_buf_match_dtag(d, NDN_DTAG_Name)) {
+        ndn_buf_advance(d);
+        res = d->decoder.token_index; /* in case of 0 components */
+        while (ndn_buf_match_dtag(d, NDN_DTAG_Component)) {
+            res = d->decoder.token_index;
+            ndn_buf_advance(d);
+            if (ndn_buf_match_blob(d, NULL, NULL))
+                ndn_buf_advance(d);
+            ndn_buf_check_close(d);
+        }
+        ndn_buf_check_close(d);
+    }
+    return ((d->decoder.state >= 0) ? res : -1);
+}
+
+
+
+  static int
+ndn_append_uri_component(struct ndn_charbuf *c, const char *s, size_t limit, size_t *cont)
+{
+    size_t start = c->length;
+    size_t i;
+    int err = 0;
+    int hex = 0;
+    int d1, d2;
+    unsigned char ch;
+    for (i = 0; i < limit; i++) {
+        ch = s[i];
+        switch (ch) {
+            case 0:
+            case '/':
+            case '?':
+            case '#':
+                limit = i;
+                break;
+            case '=':
+                if (hex || i + 3 > limit) {
+                    return(-3);
+                }
+                hex = 1;
+                break;
+            case '%':
+                if (hex || i + 3 > limit || (d1 = hexit(s[i+1])) < 0 ||
+                    (d2 = hexit(s[i+2])) < 0   ) {
+                    return(-3);
+                }
+                ch = d1 * 16 + d2;
+                i += 2;
+                ndn_charbuf_append(c, &ch, 1);
+                break;
+            case ':': case '[': case ']': case '@':
+            case '!': case '$': case '&': case '\'': case '(': case ')':
+            case '*': case '+': case ',': case ';':
+                err++;
+                /* FALLTHROUGH */
+            default:
+                if (ch <= ' ' || ch > '~')
+                    err++;
+                if (hex) {
+                    if ((d1 = hexit(s[i])) < 0 || (d2 = hexit(s[i+1])) < 0) {
+                        return(-3);
+                    }
+                    ch = d1 * 16 + d2;
+                    i++;
+                }
+                ndn_charbuf_append(c, &ch, 1);
+                break;
+        }
+    }
+    for (i = start; i < c->length && c->buf[i] == '.'; i++)
+        continue;
+    if (i == c->length) {
+        /* all dots */
+        i -= start;
+        if (i <= 1) {
+            c->length = start;
+            err = -2;
+        }
+        else if (i == 2) {
+            c->length = start;
+            err = -1;
+        }
+        else
+            c->length -= 3;
+    }
+    if (cont != NULL)
+        *cont = limit;
+    return(err);
+}
+ 
+int
+JDD_ndn_name_from_uri(struct ndn_charbuf *c, const char *uri)
+{
+    int res = 0;
+    struct ndn_charbuf *compbuf = NULL;
+    const char *stop = uri + strlen(uri);
+    const char *s = uri;
+    size_t cont = 0;
+
+    compbuf = ndn_charbuf_create();
+    if (compbuf == NULL) 
+       {
+         fprintf(stderr, "JDD_ndn_name_from_uri: returning because compbuf == NULL\n");
+         return(-1);
+       }
+    if (s[0] != '/') {
+        res = ndn_append_uri_component(compbuf, s, stop - s, &cont);
+        if (res < -2)
+            goto Done;
+        ndn_charbuf_reserve(compbuf, 1)[0] = 0;
+        if (s[cont-1] == ':') {
+            if ((0 == strcasecmp((const char *)(compbuf->buf), "ndn:") ||
+                 0 == strcasecmp((const char *)(compbuf->buf), "ndn:"))) {
+                s += cont;
+                cont = 0;
+            } else {
+                fprintf(stderr, "JDD_ndn_name_from_uri: returning because strcasecmp's failed\n");
+                fprintf(stderr, "JDD_ndn_name_from_uri: compbuf->buf = %s\n", compbuf->buf);
+                return (-1);
+            }
+        }
+    }
+    if (s[0] == '/') {
+        ndn_name_init(c);
+        if (s[1] == '/') {
+            /* Skip over hostname part - not used in ndnx scheme */
+            s += 2;
+            compbuf->length = 0;
+            res = ndn_append_uri_component(compbuf, s, stop - s, &cont);
+            if (res < 0 && res != -2)
+                goto Done;
+            s += cont; cont = 0;
+        }
+    }
+    while (s[0] != 0 && s[0] != '?' && s[0] != '#') {
+        if (s[0] == '/')
+            s++;
+        compbuf->length = 0;
+        res = ndn_append_uri_component(compbuf, s, stop - s, &cont);
+        s += cont; cont = 0;
+        if (res < -2)
+            goto Done;
+        if (res == -2) {
+            res = 0; /* process . or equiv in URI */
+            continue;
+        }
+        if (res == -1) {
+            /* process .. in URI - discard last name component */
+            res = ndn_name_last_component_offset(c->buf, c->length);
+            if (res < 0)
+                goto Done;
+            c->length = res;
+            ndn_charbuf_append_closer(c);
+            continue;
+        }
+        res = ndn_name_append(c, compbuf->buf, compbuf->length);
+        if (res < 0)
+            goto Done;
+    }
+Done:
+    ndn_charbuf_destroy(&compbuf);
+    if (res < 0)
+        return(-1);
+    if (c->length < 2 || c->buf[c->length-1] != NDN_CLOSE)
+        return(-1);
+    return(s - uri);
+}
+ 
 
 int
 main(int argc, char **argv)
@@ -343,7 +535,8 @@ main(int argc, char **argv)
 	    sprintf(tmp_name, "%s/%s/%s", MON_NAME_PREFIX,link_entries[i]->sipaddr, link_entries[i]->fipaddr);
 
 	    
-	    res = ndn_name_from_uri(name, tmp_name);
+	    //res = ndn_name_from_uri(name, tmp_name);
+	    res = JDD_ndn_name_from_uri(name, tmp_name);
 	    if (res < 0)
 	      {
 		fprintf(stderr, "%s: bad ndn URI: %s\n", progname, tmp_name);
