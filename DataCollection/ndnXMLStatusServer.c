@@ -142,12 +142,15 @@ incoming_interest(
       if (endc < 7)
 	{
 	  if (DEBUG)
-	    printf("Non monitoring interest received\n");
+	    printf("Non monitoring interest received endc = %d\n", endc);
 	  break;
 	}
       else
 	{
-	  res = ndn_name_comp_get(info->interest_ndnb, info->interest_comps, 2, &p, &size);
+// They all start /ndn/edu/wustl/ndnstatus
+// This define tells how many come before the ndnstatus
+#define NDNSTATUS_PREFIX_COMPONENTS 3
+	  res = ndn_name_comp_get(info->interest_ndnb, info->interest_comps, NDNSTATUS_PREFIX_COMPONENTS, &p, &size);
 	  tmp_str[0] = '\0';
 	  if (size < 50)
 	    {
@@ -246,7 +249,7 @@ incoming_interest(
 	  //sprintf(cmd_str, "curl -s -L http://%s/bw/%d/%s/%u/%u \n", map_server_addr, fstatus.id, fstatus.timestamp, fstatus.txbits, fstatus.rxbits);
 	  sprintf(cmd_str, "http://%s/bw/%d/%s/%u/%u", map_server_addr, fstatus.id, fstatus.timestamp, fstatus.txbits, fstatus.rxbits); 
 	  if (DEBUG)
-	    printf("%s\n", cmd_str);
+	    printf("cmd to pass to curl: %s\n", cmd_str);
           //system(cmd_str);
           int status;
           // check for zombies
@@ -535,8 +538,8 @@ main(int argc, char **argv)
 	    sprintf(tmp_name, "%s/%s/%s", MON_NAME_PREFIX,link_entries[i]->sipaddr, link_entries[i]->fipaddr);
 
 	    
-	    //res = ndn_name_from_uri(name, tmp_name);
-	    res = JDD_ndn_name_from_uri(name, tmp_name);
+	    res = ndn_name_from_uri(name, tmp_name);
+	    //res = JDD_ndn_name_from_uri(name, tmp_name);
 	    if (res < 0)
 	      {
 		fprintf(stderr, "%s: bad ndn URI: %s\n", progname, tmp_name);
