@@ -14,22 +14,23 @@
 #    limitations under the License.
 #
 
-CCNDIR = ../../ccnx
+#CCNDIR = ../../ccnx
+NDNDIR = /usr/local/
 
 DEBUG = -g
 
 CXXFLAGS = ${DEBUG} -g -Wall -Wpointer-arith -Wreturn-type -Wstrict-prototypes -D_REENTRANT -fPIC 
-INCLUDES = -I. -I${CCNDIR}/include -I/usr/include/expat -I../database/include -I/opt/gurobi300/linux64/include
+INCLUDES = -I. -I${NDNDIR}/include -I/usr/include/expat -I../database/include -I/opt/gurobi300/linux64/include
 
 #LIBS = -lrt -lpthread -L../shared/${OBJDIR} -lONLshared -L../database/lib/${OBJDIR} -lonldb -L/usr/lib64/mysql -lmysqlclient_r -lmysqlpp -L/opt/gurobi300/linux64/lib -lgurobi_c++ -lgurobi30 -lssl
 #LIBS = -lrt -lpthread -L../shared/${OBJDIR} -lONLshared -L../database/lib/${OBJDIR} -lonldb /usr/lib64/mysql/libmysqlclient_r.so /usr/lib64/libmysqlpp.so -L/opt/gurobi300/linux64/lib -lgurobi_c++ -lgurobi30 -lssl
 #LIBS = -lrt -lpthread  -L../shared/${OBJDIR} -lONLshared -L../database/lib/${OBJDIR} -lonldb -L/usr/lib64/mysql -lmysqlclient_r -lmysqlpp -lssl -lcrypto -lz -lkrb5 -lk5crypto -ldl
-LIBS = -L/usr/lib -lexpat -L${CCNDIR}/lib -lccn -lcrypto 
+LIBS = -L/usr/lib -lexpat -L${NDNDIR}/lib -lndn -lcrypto 
 
-CLIENT_EXEC = ./ccnxmlstat_c
-CLIENT_OBJS = ./ccnXMLStatusClient.o 
-SRVR_EXEC = ./ccnxmlstat_s
-SRVR_OBJS = ./ccnXMLStatusServer.o
+CLIENT_EXEC = ./ndnxmlstat_c
+CLIENT_OBJS = ./ndnXMLStatusClient.o 
+SRVR_EXEC = ./ndnxmlstat_s
+SRVR_OBJS = ./ndnXMLStatusServer.o
 OBJS = ${SRVR_OBJS} ${CLIENT_OBJS}
 
 all: ${SRVR_OBJS} ${CLIENT_OBJS} ${CLIENT_EXEC} ${SRVR_EXEC}
