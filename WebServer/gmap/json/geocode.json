@@ -26,7 +26,7 @@
         "site": "http://northpole.ece.neu.edu:6363/",
         "backbone": false,        
         "_real_position": [ 42.33987830, -71.08873579999999 ],
-        "position": [ 42.7, -71.08873579999999 ]
+        "position": [ 42.8, -71.08873579999999 ]
     },
     "MICH": {
         "name": "University Michigan",
@@ -99,5 +99,26 @@
         "backbone": false,
         "_real_position": [ 31.12, 121.30 ],
         "position": [ 31.12, 121.30 ]
+    },
+    "LIP6": {
+        "name": "University Pierre et Marie Curie, Sorbonne Universities LIP6",
+        "shortname": "LIP6",
+        "site": "http://128.252.153.194:6363/",
+        "backbone": false,
+        "position": [ 48.50, 2.21 ]
+    },
+    "SysX": {
+        "name": "SystemX (Orange Lags, Bell Labs and Alcatel-Lucent)",
+        "shortname": "SysX",
+        "site": "http://128.252.153.194:6363/",
+        "backbone": false,
+        "position": [ 47.0, 2.3]
+    },
+    "Vienna": {
+        "name": "Vienna University of Technology",
+        "shortname": "Vienna",
+        "site": "http://128.252.153.194:6363/",
+        "backbone": false,
+        "position": [ 48.1, 16.2]
     }
 }
