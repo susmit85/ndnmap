@@ -2,79 +2,44 @@
     "UA": {
         "name": "The University of Arizona",
         "shortname": "UA",
-        "site": "http://hobo.cs.arizona.edu:9695/",
+        "site": "http://hobo.cs.arizona.edu:6363/",
         "backbone": false,
         "position": [ 32.22896140, -110.94832260 ]
-    },
-    "SPP-ATLA": {
-        "name": "Atlanta SPP Node",
-        "shortname": "SPP-ATLA",
-        "site": "http://sppatla1.arl.wustl.edu:9695/",
-        "backbone": true,
-        "position": [ 33.74899540, -84.38798240 ]
     },
     "CSU": {
         "name": "Colorado State University",
         "shortname": "CSU",
-        "site": "http://mccoy.netsec.colostate.edu:9695/",
+        "site": "http://mccoy.netsec.colostate.edu:6363/",
         "backbone": false,
         "position": [ 40.57471750, -105.08482930 ]
-    },
-    "SPP-KANS": {
-        "name": "Kansas City SPP Node",
-        "shortname": "SPP-KANS",
-        "site": "http://sppkans1.arl.wustl.edu:9695/",
-        "backbone": true,
-        "position": [ 39.09972650, -94.57856670 ]
-    },
-    "SPP-HOUS": {
-        "name": "Houston SPP Node",
-        "shortname": "SPP-HOUS",
-        "site": "http://spphous1.arl.wustl.edu:9695/",
-        "backbone": true,
-        "position": [ 29.76019270, -95.36938959999999 ]
     },
     "UM": {
         "name": "University of Memphis",
         "shortname": "UM",
-        "site": "http://netlogic.cs.memphis.edu:9695/",
+        "site": "http://netlogic.cs.memphis.edu:6363/",
         "backbone": false,
         "position": [ 35.11860990, -89.93700109999999 ]
     },
     "NEU": {
         "name": "Northeastern University",
         "shortname": "NEU",
-        "site": "http://northpole.ece.neu.edu:9695/",
+        "site": "http://northpole.ece.neu.edu:6363/",
         "backbone": false,        
-        "position": [ 42.33987830, -71.08873579999999 ]
+        "_real_position": [ 42.33987830, -71.08873579999999 ],
+        "position": [ 42.7, -71.08873579999999 ]
     },
-    "PARC": {
-        "name": "Palo Alto Research Center (PARC)",
-        "shortname": "PARC",
-        "site": "http://ndnlx1.parc.xerox.com:9695/",
+    "MICH": {
+        "name": "University Michigan",
+        "shortname": "MICH",
+        "site": "http://ndn0.eecs.umich.edu:6363/",
         "backbone": false,
-        "position": [ 37.40213770, -122.14807210 ]
-    },
-    "SPP-SALT": {
-        "name": "Salt Lake City",
-        "shortname": "SPP-SALT",
-        "site": "http://sppsalt1.arl.wustl.edu:9695/",
-        "description": "Salt Lake City SPP Node",
-        "backbone": true,
-        "position": [ 39.76077930, -111.89104740 ]
-    },
-    "UCI": {
-        "name": "University of California Irvine",
-        "shortname": "UCI",
-        "site": "http://ndnhub.ics.uci.edu:9695/",
-        "backbone": false,
-        "_real_position": [ 33.6649250, -117.8537750 ],
-        "position": [ 34.4, -117.6 ]
+        "_real_position": [ 42.10260390, -80.23171080000002 ],
+        "position": [ 42.10260390, -83.4 ]
     },
     "UIUC": {
         "name": "University of Illinois, Urbana-Champaign",
         "shortname": "UIUC",
-        "site": "http://ndn.cs.illinois.edu:9695/",
+        "site": "http://ndn.cs.illinois.edu:6363/",
         "backbone": false,
         "_real_position": [ 40.10260390, -88.23171080000002 ],
         "position": [ 40.60260390, -88.23171080000002 ]
@@ -82,7 +47,7 @@
     "UCLA": {
         "name": "University of California, Los Angeles",
         "shortname": "UCLA",
-        "site": "http://spurs.cs.ucla.edu:9695/",
+        "site": "http://spurs.cs.ucla.edu:6363/",
         "backbone": false,
         "_real_position": [ 34.07282250, -118.43873980 ],
         "position": [ 35.5, -120 ]
@@ -90,40 +55,49 @@
     "REMAP": {
         "name": "Remap at University of California, Los Angeles",
         "shortname": "REMAP",
-        "site": "http://borges.metwi.ucla.edu:9695/",
+        "site": "http://borges.metwi.ucla.edu:6363/",
         "backbone": false,
         "_real_position": [ 34.07282250, -118.43873980 ],
-        "position": [ 34.4, -122.14807210 ]
+        "position": [ 34.4, -117.14807210 ]
     },
     "UCSD": {
         "name": "University of California San Diego",
         "shortname": "CAIDA/UCSD",
-        "site": "http://ccnhub.caida.org:9695/",
+        "site": "http://ccnhub.caida.org:6363/",
         "backbone": false,
-        "position": [ 32.87357720, -117.23781110 ]
-    },
-    "SPP-WASH": {
-        "name": "Washington DC SPP Node",
-        "shortname": "SPP-WASH",
-        "site": "http://sppwash1.arl.wustl.edu:9695/",
-        "backbone": true,
-        "position": [ 38.89511180, -77.03636580 ]
+        "_real_position": [ 32.87357720, -117.23781110 ],
+        "position": [ 31.87357720, -119.23781110 ]
     },
     "WashU": {
         "name": "Washington University in St. Louis",
         "shortname": "WashU",
-        "site": "http://128.252.153.193:9695/",
+        "site": "http://128.252.153.193:6363/",
         "backbone": false,
         "_real_position": [ 38.64907010, -90.30334710 ],
         "position": [ 38.14907010, -90.30334710 ]
     },
+    "UCI": {
+        "name": "University of California, Irvine",
+        "shortname": "UCI",
+        "site": "http://ndnhub.ics.uci.edu:6363/",
+        "backbone": false,
+        "_real_position": [ 33.6495, -117.845798 ],
+        "position": [ 33.1495, -118.145798 ]
+    },
     "PKU": {
         "name": "Peking University",
         "shortname": "PKU",
-        "site": "http://162.105.146.26:9695/",
+        "site": "http://162.105.146.26:6363/",
         "backbone": false,
         "_real_position": [ 39.59, 116.18 ],
         "position": [ 39.59, 116.18 ]
+    },
+    "TONGJI": {
+        "name": "Tongji University",
+        "shortname": "TONGJI",
+        "site": "http://202.120.188.176:6363/",
+        "backbone": false,
+        "_real_position": [ 31.12, 121.30 ],
+        "position": [ 31.12, 121.30 ]
     }
-
 }

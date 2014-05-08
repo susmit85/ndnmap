@@ -1,19 +1,18 @@
-# local settings for ndnmap project.
-from os import path, environ
-
-DEBUG = True
-TEMPLATE_DEBUG = True
-
+DEBUG = False
+TEMPLATE_DEBUG = False
+SERVE_MEDIA = False
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3', 
-        'NAME': path.join(path.dirname(__file__), 'local.sqlite'),
-        'USER': '',      
-        'PASSWORD': '',  
-        'HOST': '',      
-        'PORT': '',      
+       'ENGINE': 'django.db.backends.mysql',
+       'NAME': 'ndnmap',
+       'USER': 'ndnmap',
+       'PASSWORD': '',
+       'HOST': 'localhost',
     }
 }
 
-#GMAP_BW_UPDATE_INTERVAL = 10
+MEDIA_URL = 'http://www.arl.wustl.edu/~jdd/NDN/static//'
+STATIC_URL = 'http://www.arl.wustl.edu/~jdd/NDN/static//'
+ADMIN_MEDIA_PREFIX = 'http://www.arl.wustl.edu/~jdd/NDN/static//admin/'
+TEMPLATE_DIRS = ('/home/ndnmap/ndnmap/templates', )
