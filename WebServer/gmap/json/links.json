@@ -118,35 +118,5 @@
         "id": 24,
         "start": "UCSD",
         "end": "TONGJI"
-    },
-    {
-        "id": 25,
-        "start": "LIP6",
-        "end": "SysX"
-    },
-    {
-        "id": 26,
-        "start": "UM",
-        "end": "SysX"
-    },
-    {
-        "id": 27,
-        "start": "LIP6",
-        "end": "UIUC"
-    },
-    {
-        "id": 28,
-        "start": "Vienna",
-        "end": "PKU"
-    },
-    {
-        "id": 29,
-        "start": "LIP6",
-        "end": "Vienna"
-    },
-    {
-        "id": 30,
-        "start": "SysX",
-        "end": "Vienna"
     }
 ]
