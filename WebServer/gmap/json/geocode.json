@@ -16,14 +16,14 @@
     "UM": {
         "name": "University of Memphis",
         "shortname": "UM",
-        "site": "http://netlogic.cs.memphis.edu:6363/",
+        "site": "http://titan.cs.memphis.edu:6363/",
         "backbone": false,
         "position": [ 35.11860990, -89.93700109999999 ]
     },
     "NEU": {
         "name": "Northeastern University",
         "shortname": "NEU",
-        "site": "http://northpole.ece.neu.edu:6363/",
+        "site": "http://129.10.52.193:6363/",
         "backbone": false,        
         "_real_position": [ 42.33987830, -71.08873579999999 ],
         "position": [ 42.7, -71.08873579999999 ]
@@ -39,7 +39,7 @@
     "UIUC": {
         "name": "University of Illinois, Urbana-Champaign",
         "shortname": "UIUC",
-        "site": "http://ndn.cs.illinois.edu:6363/",
+        "site": "http://tarekb17.cs.illinois.edu:6363/",
         "backbone": false,
         "_real_position": [ 40.10260390, -88.23171080000002 ],
         "position": [ 40.60260390, -88.23171080000002 ]
@@ -55,7 +55,7 @@
     "REMAP": {
         "name": "Remap at University of California, Los Angeles",
         "shortname": "REMAP",
-        "site": "http://borges.metwi.ucla.edu:6363/",
+        "site": "http://aleph.ndn.ucla.edu:6363/",
         "backbone": false,
         "_real_position": [ 34.07282250, -118.43873980 ],
         "position": [ 34.4, -117.14807210 ]
@@ -63,7 +63,7 @@
     "UCSD": {
         "name": "University of California San Diego",
         "shortname": "CAIDA/UCSD",
-        "site": "http://ccnhub.caida.org:6363/",
+        "site": "http://click.caida.org:6363/",
         "backbone": false,
         "_real_position": [ 32.87357720, -117.23781110 ],
         "position": [ 31.87357720, -119.23781110 ]
@@ -71,7 +71,7 @@
     "WashU": {
         "name": "Washington University in St. Louis",
         "shortname": "WashU",
-        "site": "http://128.252.153.193:6363/",
+        "site": "http://wundngw.arl.wustl.edu:6363/",
         "backbone": false,
         "_real_position": [ 38.64907010, -90.30334710 ],
         "position": [ 38.14907010, -90.30334710 ]
