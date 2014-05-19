@@ -99,5 +99,19 @@
         "backbone": false,
         "_real_position": [ 31.12, 121.30 ],
         "position": [ 31.12, 121.30 ]
+    },
+    "LIP6": {
+        "name": "University Pierre et Marie Curie, Sorbonne Universities LIP6",
+        "shortname": "LIP6",
+        "site": "http://128.252.153.194:6363/",
+        "backbone": false,
+        "position": [ 48.50, 2.21 ]
+    },
+    "SysX": {
+        "name": "SystemX (Orange Lags, Bell Labs and Alcatel-Lucent)",
+        "shortname": "SysX",
+        "site": "http://128.252.153.194:6363/",
+        "backbone": false,
+        "position": [ 47.0, 2.3]
     }
 }
