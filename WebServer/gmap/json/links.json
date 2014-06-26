@@ -122,16 +122,16 @@
     {
         "id": 25,
         "start": "LIP6",
-        "end": "SysX"
+        "end": "MICH"
     },
     {
         "id": 26,
-        "start": "UM",
-        "end": "SysX"
+        "start": "LIP6",
+        "end": "ORANGE1"
     },
     {
         "id": 27,
-        "start": "LIP6",
-        "end": "MICH"
+        "start": "UM",
+        "end": "ORANGE1"
     }
 ]

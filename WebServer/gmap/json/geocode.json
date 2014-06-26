@@ -103,14 +103,14 @@
     "LIP6": {
         "name": "University Pierre et Marie Curie, Sorbonne Universities LIP6",
         "shortname": "LIP6",
-        "site": "http://128.252.153.194:6363/",
+        "site": "http://132.227.62.163:6363/",
         "backbone": false,
         "position": [ 48.50, 2.21 ]
     },
-    "SysX": {
-        "name": "SystemX (Orange Lags, Bell Labs and Alcatel-Lucent)",
-        "shortname": "SysX",
-        "site": "http://128.252.153.194:6363/",
+    "ORANGE1": {
+        "name": "Orange Labs)",
+        "shortname": "ORANGE1",
+        "site": "http://161.105.194.154:6363/",
         "backbone": false,
         "position": [ 47.0, 2.3]
     }
