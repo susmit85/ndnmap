@@ -160,7 +160,7 @@ public:
   // char * response - stores http response
   int SendHTTPGetRequest(char * response)
   {
-    int port = 8080;//atoi(NDN_DEFAULT_UNICAST_PORT);//9695;
+    int port = 80;//atoi(NDN_DEFAULT_UNICAST_PORT);//9695;
     const char *host = "localhost";
     struct hostent *server;
     struct sockaddr_in serveraddr;
