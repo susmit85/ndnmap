@@ -6,7 +6,6 @@
 
 #include <boost/asio.hpp>
 #include <ndn-cxx/face.hpp>
-//#include <ndn-cxx/management/nfd-controller.hpp>
 
 #include <assert.h>
 #include <errno.h>
@@ -24,7 +23,7 @@
 #include <expat.h>
 
 #define NUM_RECORDED_INTERESTS 2048
-#define DEBUG 0
+#define DEBUG 1
 #define MON_NAME_PREFIX "ndn:/ndn/edu/wustl/ndnstatus"
 
 void start_element(void *data, const char *el, const char **attr);
@@ -435,7 +434,6 @@ end_element(void *data, const char *el)
     current_element[0] = '\0';
   }
 }  /* End of end handler */
-
 void
 char_data_handler(void* data, const char* s, int len)
 {
@@ -463,7 +461,32 @@ char_data_handler(void* data, const char* s, int len)
   }
   else if (strcmp(current_element, "currentTime") == 0)
   {
-    strcpy(current_time,tmp_str);
+    // example of current time format: 2014-08-21T07:27:42.217000
+    std::string stime(tmp_str);
+    std::stringstream epochTime;
+    
+    
+    std::tm ctime;
+    std::cout << "currentTime: " << tmp_str << std::endl;
+    
+    strptime(tmp_str, "%FT%T%Z", &ctime);
+    ctime.tm_isdst = -1;
+    
+    std::time_t epochSecondsLocal = std::mktime(&ctime);
+    std::cout << "epochSecondsLocal: " << epochSecondsLocal << std::endl;
+
+//    std::tm* utcTm = std::gmtime((const time_t*)&epochSecondsLocal);
+//    std::time_t epochSeconds = std::mktime(utcTm);
+//    std::cout << "epochSeconds: " << epochSeconds << std::endl;
+//    
+    std::size_t pos = stime.find(".");
+    std::string epochMilli = stime.substr (pos+1);
+    
+    
+    epochTime << epochSecondsLocal << "." << epochMilli;
+    strcpy(current_time, epochTime.str().c_str());//tmp_str);
+  
+    //strcpy(current_time, tmp_str);
   }
   else if (strcmp(current_element, "remoteUri") == 0)
   {
