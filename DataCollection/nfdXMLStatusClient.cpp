@@ -23,7 +23,7 @@
 #include <expat.h>
 
 #define NUM_RECORDED_INTERESTS 2048
-#define DEBUG 1
+#define DEBUG 0
 #define MON_NAME_PREFIX "ndn:/ndn/edu/wustl/ndnstatus"
 
 void start_element(void *data, const char *el, const char **attr);
@@ -295,6 +295,12 @@ public:
       
       unsigned int size = 1024*1024;
       
+      // debug vars
+      time_t beforeHttp;
+      time_t afterHttp;
+      time_t beforeSleep;
+      time_t afterSleep;
+      
       xml_response = (char*)malloc(sizeof(*xml_response)*size);
       
       while (res >= 0 )
@@ -309,7 +315,15 @@ public:
         XML_SetElementHandler(parser, start_element, end_element);
         XML_SetCharacterDataHandler(parser, char_data_handler);
         
+        if (DEBUG)
+        {
+          beforeHttp = time(NULL);
+        }
         res = SendHTTPGetRequest(xml_response);
+        if (DEBUG)
+        {
+          afterHttp = time(NULL);
+        }
         if (res < 1)
         {
           perror("XML get failed\n");
@@ -345,7 +359,26 @@ public:
           printInterests();
         }
         sendRecordedInterests();
+        
+        if (DEBUG)
+        {
+          beforeSleep = time(NULL);
+        }
+        
         sleep(m_pollPeriod);
+        
+        if (DEBUG)
+        {
+          afterSleep = time(NULL);
+        }
+
+        if (DEBUG)
+        {
+          printf("before http system time is %s",ctime(&beforeHttp));
+          printf("after http system time is %s", ctime(&afterHttp));
+          printf("before sleep system time is %s",ctime(&beforeSleep));
+          printf("after sleep system time is %s",ctime(&afterSleep));
+        }
       }
       free(xml_response);
       printf("exit client...\n");
