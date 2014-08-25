@@ -6,57 +6,26 @@
 
 #include <boost/asio.hpp>
 #include <ndn-cxx/face.hpp>
+#include <ndn-cxx/management/nfd-face-status.hpp>
+#include <ndn-cxx/encoding/buffer-stream.hpp>
 
-#include <assert.h>
-#include <errno.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <stdbool.h>
-#include <unistd.h>
-
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <arpa/inet.h>
-#include <netdb.h>
-#include <expat.h>
 
 #define NUM_RECORDED_INTERESTS 2048
 #define MON_NAME_PREFIX "ndn:/ndn/edu/wustl/ndnstatus"
 
-void start_element(void *data, const char *el, const char **attr);
-void end_element(void *data, const char *el);
-void char_data_handler(void* data, const char* s, int len);
-
-
 // global variables to support xml parsing
 int DEBUG = 0;
-int parser_on = 0;
-char current_element[256];
-char current_time[50];
 
-struct face_status
-{
-  char ipaddr[50];
-  char tx[50];
-  char rx[50];
-  int id;
-  int valid;
-};
-
-struct face_status* current_face;
-
+namespace ndn {
 class NdnmapClient
 {
 public:
   
   struct interestData {
-    bool valid;
     char ipaddr[50];
     unsigned long tx;
     unsigned long rx;
-    char current_time[50];
+    char currentTime[50];
   };
   
   NdnmapClient(char* programName)
@@ -84,13 +53,13 @@ public:
   }
   
   void
-  onData(const ndn::Interest& interest, ndn::Data& data)
+  onData(const Interest& interest, Data& data)
   {
     std::cout << "onData" << std::endl;
   }
   
   void
-  onTimeout(const ndn::Interest& interest)
+  onTimeout(const Interest& interest)
   {
     std::cout << "onTimeout" << std::endl;
   }
@@ -98,148 +67,154 @@ public:
   void
   initInterests()
   {
-    int i;
-    for (i=0; i < NUM_RECORDED_INTERESTS; i++)
-      recordedInterestData[i].valid = false;
     recordedInterestIndex = 0;
   }
   void
-  recordInterest(char *ipaddr, char *rx, char *tx, char *time)
+  fetchSegments(const Data& data, const shared_ptr<OBufferStream>& buffer,
+                void (NdnmapClient::*onDone)(const shared_ptr<OBufferStream>&))
+  {
+    buffer->write(reinterpret_cast<const char*>(data.getContent().value()),
+                  data.getContent().value_size());
+    
+    uint64_t currentSegment = data.getName().get(-1).toSegment();
+    
+    const name::Component& finalBlockId = data.getMetaInfo().getFinalBlockId();
+    if (finalBlockId.empty() ||
+        finalBlockId.toSegment() > currentSegment)
+    {
+      m_face.expressInterest(data.getName().getPrefix(-1).appendSegment(currentSegment+1),
+                             bind(&NdnmapClient::fetchSegments, this, _2, buffer, onDone),
+                             bind(&NdnmapClient::onTimeout, this, _1));
+      
+    }
+    else
+    {
+      return (this->*onDone)(buffer);
+    }
+  }
+  void
+  fetchFaceStatusInformation()
+  {
+    shared_ptr<OBufferStream> buffer = make_shared<OBufferStream>();
+    
+    Interest interest("/localhost/nfd/faces/list");
+    interest.setChildSelector(1);
+    interest.setMustBeFresh(true);
+    
+    m_face.expressInterest(interest,
+                           bind(&NdnmapClient::fetchSegments, this, _2, buffer,
+                                &NdnmapClient::afterFetchedFaceStatusInformation),
+                           bind(&NdnmapClient::onTimeout, this, _1));
+  }
+  
+  void
+  recordInterest(std::string& ipaddr, uint64_t& rx, uint64_t& tx, std::string& time)
   {
     int i;
     
     for (i=0; i < recordedInterestIndex; i++)
     {
-      if(current_face->valid != 1)
-        continue;
-      
-      if (recordedInterestData[i].valid && !strcmp(recordedInterestData[i].ipaddr, ipaddr))
+      if (!strcmp(recordedInterestData[i].ipaddr, ipaddr.c_str()))
       {
         // Found it!
         //printf("recordInterest: Found an already recorded ipaddr: %s\n", ipaddr);
-        recordedInterestData[i].tx += atol(tx);
-        recordedInterestData[i].rx += atol(rx);
-        strcpy(recordedInterestData[i].current_time, time);
+        recordedInterestData[i].tx += tx;
+        recordedInterestData[i].rx += rx;
+        strcpy(recordedInterestData[i].currentTime, time.c_str());
         return;
       }
     }
     
     if (i < NUM_RECORDED_INTERESTS)
     {
-      if (current_face->valid == 1)
-      {
-        recordedInterestData[i].valid = true;
-        recordedInterestData[i].tx = atol(tx);
-        recordedInterestData[i].rx = atol(rx);
-        strcpy(recordedInterestData[i].current_time, time);
-        strcpy(recordedInterestData[i].ipaddr, ipaddr);
-        recordedInterestIndex++;
-      }
+      recordedInterestData[i].tx = tx;
+      recordedInterestData[i].rx = rx;
+      strcpy(recordedInterestData[i].currentTime, time.c_str());
+      strcpy(recordedInterestData[i].ipaddr, ipaddr.c_str());
+      recordedInterestIndex++;
     }
     else
     {
       printf("recordInterest: TOO MANY FACES!!!\n");
     }
     
-    
   }
   void
   printInterests()
   {
     int i;
-    for (i=0; i < recordedInterestIndex; i++) {
-      if (recordedInterestData[i].valid == false)
-        return;
-      else {
-        printf("interest[%i]: %s %ld %ld %s\n", i, recordedInterestData[i].ipaddr ,recordedInterestData[i].tx ,recordedInterestData[i].rx ,recordedInterestData[i].current_time);
-      }
+    for (i=0; i < recordedInterestIndex; i++)
+    {
+      printf("interest[%i]: %s %ld %ld %s\n", i, recordedInterestData[i].ipaddr ,recordedInterestData[i].tx ,recordedInterestData[i].rx , recordedInterestData[i].currentTime);
     }
   }
+
   
-  // This function send http request to the local ndnd.
-  // char * response - stores http response
-  int SendHTTPGetRequest(char * response)
+  void
+  afterFetchedFaceStatusInformation(const shared_ptr<OBufferStream>& buffer)
   {
-    int port = 80;//atoi(NDN_DEFAULT_UNICAST_PORT);//9695;
-    const char *host = "localhost";
-    struct hostent *server;
-    struct sockaddr_in serveraddr;
-    char request[1000];
-    int n = 1, total = 0, found = 0;
+    ConstBufferPtr buf = buffer->buf();
     
-    int tcpSocket = socket(AF_INET, SOCK_STREAM, 0);
-    
-    if (tcpSocket < 0)
+    Block block;
+    size_t offset = 0;
+    while (offset < buf->size())
     {
-      printf("\nError opening socket\n");
-      return 0;
-    }
-    else
-    {
-      if (DEBUG)
-        printf("\nSuccessfully opened socket\n");
-    }
-    server = gethostbyname(host);
-    if (server == NULL)
-    {
-      printf("gethostbyname() failed\n");
-      return 0;
-    }
-    
-    bzero((char *) &serveraddr, sizeof(serveraddr));
-    serveraddr.sin_family = AF_INET;
-    
-    bcopy((char *)server->h_addr, (char *)&serveraddr.sin_addr.s_addr, server->h_length);
-    
-    serveraddr.sin_port = htons(port);
-    
-    if (connect(tcpSocket, (struct sockaddr *) &serveraddr, sizeof(serveraddr)) < 0)
-    {
-      if (DEBUG)
-        printf("Error Connecting\n");
-    }
-    else
-    {
-      if (DEBUG)
-        printf("Successfully Connected\n");
-    }
-    bzero(request, 1000);
-    
-    sprintf(request, "GET /?f=xml HTTP/1.1\r\n"
-            "Accept: */*\r\n"
-            "\r\n");
-    
-    
-    if (send(tcpSocket, request, strlen(request), 0) < 0)
-      printf("Error with send()\n");
-    else
-    {
-      if (DEBUG)
-        printf("Successfully sent html fetch request\n");
-    }
-    
-    bzero(request, 1000);
-    
-    
-    // Keep reading up to a '</nfdStatus>'
-    while (!found)
-    {
-      n = recv(tcpSocket, response + total, 1024, 0);
-      
-      if (n == -1)
+      bool ok = Block::fromBuffer(buf, offset, block);
+      if (!ok)
       {
-        // Error, check 'errno' for more details
+        std::cerr << "ERROR: cannot decode FaceStatus TLV" << std::endl;
         break;
       }
-      total += n;
-      response[total] = '\0';
       
-      found = (strstr(response, "</nfdStatus>") != 0);
+      offset += block.size();
+      
+      nfd::FaceStatus faceStatus(block);
+      
+      // take only udp4 and tcp4 faces at the moment
+      //struct faceStatus currentFace;
+      std::string currentTime;
+
+      std::string remoteUri = faceStatus.getRemoteUri();
+      
+      if(remoteUri.compare(0,4,"tcp4") != 0 &&
+         remoteUri.compare(0,4,"udp4") != 0)
+        continue;
+      
+      // take the ip from uri (remove tcp4:// and everything after ':'
+      std::size_t strPos = remoteUri.find_last_of(":");
+      std::string remoteIp = remoteUri.substr(7,strPos - 7);
+      
+      uint64_t tx = faceStatus.getNOutBytes();
+      uint64_t rx = faceStatus.getNInBytes();
+      uint64_t faceId = faceStatus.getFaceId();
+      
+      std::tm ctime;
+      std::stringstream realEpochTime;
+      ndn::time::system_clock::TimePoint realCurrentTime = ndn::time::system_clock::now();
+      std::string currentTimeStr = ndn::time::toString(realCurrentTime, "%Y-%m-%dT%H:%M:%S%F");
+      
+      strptime(currentTimeStr.c_str(), "%FT%T%Z", &ctime);
+      std::string stime(currentTimeStr);
+      std::time_t realEpochSeconds = std::mktime(&ctime);
+      std::size_t pos = stime.find(".");
+      std::string realEpochMilli = stime.substr(pos+1);
+      realEpochTime << realEpochSeconds << "." << realEpochMilli;
+      
+      if (DEBUG)
+      {
+        std::cout << "'real' currentTime" << currentTimeStr << std::endl;;
+        std::cout << "real epochTime: " << realEpochTime.str().c_str() << std::endl;
+      }
+      currentTime =  realEpochTime.str();
+      
+      if (DEBUG)
+        std::cout << "about to store " << faceId << ": " << rx << ", " << tx << ", " << remoteIp << std::endl;
+      
+      recordInterest(remoteIp, rx, tx, currentTime);
     }
-    
-    close(tcpSocket);
-    return 1;
+
   }
+  
   void
   sendRecordedInterests()
   {
@@ -248,26 +223,23 @@ public:
     
     for (i=0; i < recordedInterestIndex; i++)
     {
-      if (recordedInterestData[i].valid == false)
-        return;
-      
       if (DEBUG)
         printf("sendRecordedInterests(): interest[%i]: %s %ld %ld %s\n", i, recordedInterestData[i].ipaddr ,
                recordedInterestData[i].tx ,
                recordedInterestData[i].rx ,
-               recordedInterestData[i].current_time);
+               recordedInterestData[i].currentTime);
       
       sprintf(tmp_name, "%s/%s/%s/%s/%ld/%ld", MON_NAME_PREFIX, m_myipaddr.c_str(),
               recordedInterestData[i].ipaddr,
-              recordedInterestData[i].current_time,
+              recordedInterestData[i].currentTime,
               recordedInterestData[i].tx,
               recordedInterestData[i].rx);
       
       if (DEBUG)
         printf("sendRecordedInterests(): tmp_name: %s\n", tmp_name);
       
-      ndn::Interest i(tmp_name);
-      i.setInterestLifetime(ndn::time::milliseconds(0));
+      Interest i(tmp_name);
+      i.setInterestLifetime(time::milliseconds(0));
       i.setMustBeFresh(true);
       m_face.expressInterest(i,
                              bind(&NdnmapClient::onData, this, _1, _2),
@@ -284,76 +256,32 @@ public:
       std::cout << m_programName <<  "polling every " << m_pollPeriod << " seconds" << std::endl;
       std::cout << "My IP is: " << m_myipaddr << std::endl;
       
-      char *xml_response;
-      XML_Parser parser = NULL;
-      int offset = 0;
-      int skiplines = 0;
       int res = 0;
       
-      current_element[0] = '\0';
-      current_face = NULL;
-      parser_on = 0;
-      
-      unsigned int size = 1024*1024;
       
       // debug vars
-      time_t beforeHttp;
-      time_t afterHttp;
+      time_t beforeStatusRequest;
+      time_t afterStatusRequest;
       time_t beforeSleep;
       time_t afterSleep;
-      
-      xml_response = (char*)malloc(sizeof(*xml_response)*size);
-      
+     
       while (res >= 0 )
       {
         initInterests();
-        parser = XML_ParserCreate(NULL);
-        if (!parser)
-        {
-          std::cerr << "Couldn't allocate memory for parser" << std::endl;
-          break;
-        }
-        XML_SetElementHandler(parser, start_element, end_element);
-        XML_SetCharacterDataHandler(parser, char_data_handler);
         
         if (DEBUG)
         {
-          beforeHttp = time(NULL);
+          beforeStatusRequest = std::time(NULL);
         }
-        res = SendHTTPGetRequest(xml_response);
-        if (DEBUG)
-        {
-          afterHttp = time(NULL);
-        }
-        if (res < 1)
-        {
-          perror("XML get failed\n");
-          break;
-        }
-        if (DEBUG)
-          printf("finished read %s\n",xml_response);
-        offset = 0;
-        skiplines = 0;
-        while(skiplines < 5)
-        {
-          if (xml_response[offset] == '\n')
-            ++skiplines;
-          ++offset;
-        }
-        res = XML_Parse(parser, xml_response+offset, strlen(xml_response+offset), 1);
-        if (res == 0)
-        {
-          perror("\n ***** \n XML parse error\n\n");
-        }
-        else
-          res = 1;
-        if (current_face != NULL)
-        {
-          free(current_face);
-          current_face = NULL;
-        }
-        XML_ParserFree(parser);
+
+        fetchFaceStatusInformation();
+        m_face.processEvents();
         
+        if (DEBUG)
+        {
+          afterStatusRequest = std::time(NULL);
+        }
+  
         if (DEBUG)
         {
           printf("ABOUT TO PRINT FACES LIST\n");
@@ -361,30 +289,30 @@ public:
         }
         sendRecordedInterests();
         
+        
         if (DEBUG)
         {
-          beforeSleep = time(NULL);
+          beforeSleep = std::time(NULL);
         }
         
         sleep(m_pollPeriod);
         
         if (DEBUG)
         {
-          afterSleep = time(NULL);
+          afterSleep = std::time(NULL);
         }
         
         if (DEBUG)
         {
-          printf("before http system time is %s",ctime(&beforeHttp));
-          printf("after http system time is %s", ctime(&afterHttp));
+          printf("before status request system time is %s",ctime(&beforeStatusRequest));
+          printf("after status request system time is %s", ctime(&afterStatusRequest));
           printf("before sleep system time is %s",ctime(&beforeSleep));
           printf("after sleep system time is %s",ctime(&afterSleep));
         }
       }
-      free(xml_response);
+  
       printf("exit client...\n");
       
-      XML_ParserFree(parser);
     }
     catch (std::exception& e)
     {
@@ -422,137 +350,19 @@ public:
   std::string m_myipaddr;
   
 private:
+  
   std::string m_programName;
   std::string m_prefixName;
   int m_pollPeriod;
-  ndn::Face m_face;
+  Face m_face;
+  
   
   struct interestData recordedInterestData[NUM_RECORDED_INTERESTS];
   int recordedInterestIndex;
 };
-NdnmapClient ndnmapClient("ndnxmlstat_c");
+} // namespace ndn
 
-void
-start_element(void *data, const char *el, const char **attr)
-{
-  if (strcmp(el, "nfdStatus") == 0)
-    parser_on = 1;
-  if (!parser_on)
-    return;
-  strcpy(current_element, el);
-}  /* End of start handler */
-
-void
-end_element(void *data, const char *el)
-{
-  if (strcmp(el, "face") == 0 || strcmp(el, "nfdStatus") == 0)
-  {
-    /*send interest with current_face*/
-    if (current_face != NULL)
-    {
-      //SHOULD STORE DATA HERE:
-      ndnmapClient.recordInterest(current_face->ipaddr, current_face->rx, current_face->tx, current_time);
-      free(current_face);
-      current_face = NULL;
-    }
-    current_element[0] = '\0';
-  }
-  else if (strcmp(el, "faces") == 0)
-  {
-    parser_on = 0;
-    if (current_face != NULL)
-    {
-      free(current_face);
-      current_face = NULL;
-    }
-    current_element[0] = '\0';
-  }
-}  /* End of end handler */
-void
-char_data_handler(void* data, const char* s, int len)
-{
-  if (!parser_on)
-    return;
-  char tmp_str[256];
-  int i = 0;
-  int j = 0;
-  strncpy(tmp_str, s, len);
-  tmp_str[len] = '\0';
-  
-  if (strcmp(current_element, "faceId") == 0)
-  {
-    if (current_face != NULL)
-    {
-      free(current_face);
-      printf(" error in parsing received new face before end of old one");
-    }
-    current_face = (face_status*)malloc(sizeof(*current_face));/*get_face(atoi(tmp_str));*/
-    current_face->id = atoi(tmp_str);
-    current_face->ipaddr[0] = '\0';
-    current_face->tx[0] = '\0';
-    current_face->rx[0] = '\0';
-    current_face->valid = 0;
-  }
-  else if (strcmp(current_element, "currentTime") == 0)
-  {
-    // example of current time format: 2014-08-21T07:27:42.217000
-    // xml time is not updated but every 5 seconds - so ignore it!
-    
-    std::tm ctime;
-    std::stringstream realEpochTime;
-    ndn::time::system_clock::TimePoint realCurrentTime = ndn::time::system_clock::now();
-    std::string currentTimeStr = ndn::time::toString(realCurrentTime, "%Y-%m-%dT%H:%M:%S%F");
-
-    strptime(currentTimeStr.c_str(), "%FT%T%Z", &ctime);
-    std::string stime(currentTimeStr);
-    std::time_t realEpochSeconds = std::mktime(&ctime);
-    std::size_t pos = stime.find(".");
-    std::string realEpochMilli = stime.substr(pos+1);
-    realEpochTime << realEpochSeconds << "." << realEpochMilli;
-    
-    if (DEBUG)
-    {
-      std::cout << "currentTime from xml: " << tmp_str << std::endl;
-      std::cout << "'real' currentTime" << currentTimeStr << std::endl;;
-      std::cout << "real epochTime: " << realEpochTime.str().c_str() << std::endl;
-    }
-    strcpy(current_time, realEpochTime.str().c_str());
-  }
-  else if (strcmp(current_element, "remoteUri") == 0)
-  {
-    if (current_face != NULL)
-    {
-      if(strncmp(tmp_str,"udp4",4) == 0 ||
-         strncmp(tmp_str,"tcp4",4) == 0)
-      {
-        current_face->valid = 1;
-        j = 7;
-      }
-      // start copying after ://
-      for(i = 0; i < len; ++i)
-      {
-        if (tmp_str[i+j] == ':')
-        {
-          current_face->ipaddr[i] = '\0';
-          break;
-        }
-        else
-          current_face->ipaddr[i] = tmp_str[i+j];
-      }      //strcpy(current_face->ipaddr, tmp_str);
-    }
-  }
-  else if (strcmp(current_element, "incomingBytes") == 0)
-  {
-    if (current_face != NULL)
-      strcpy(current_face->rx,tmp_str);
-  }
-  else if (strcmp(current_element, "outgoingBytes") == 0)
-  {
-    if (current_face != NULL)
-      strcpy(current_face->tx,tmp_str);
-  }
-  
-}
+ndn::NdnmapClient ndnmapClient("ndnxmlstat_c");
 
 int
 main(int argc, char* argv[])
