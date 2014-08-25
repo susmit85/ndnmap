@@ -23,7 +23,6 @@
 #include <expat.h>
 
 #define NUM_RECORDED_INTERESTS 2048
-#define DEBUG 0
 #define MON_NAME_PREFIX "ndn:/ndn/edu/wustl/ndnstatus"
 
 void start_element(void *data, const char *el, const char **attr);
@@ -32,6 +31,7 @@ void char_data_handler(void* data, const char* s, int len);
 
 
 // global variables to support xml parsing
+int DEBUG = 0;
 int parser_on = 0;
 char current_element[256];
 char current_time[50];
@@ -78,6 +78,7 @@ public:
     "\n"
     " \t-h - print this message and exit\n"
     " \t-i <ipaddr> - host ip address (of this host) to be included in interests\n"
+    " \t-d - set debug mode: 1 - debug on, 0- debug off (default)\n"
     "\n";
     exit(1);
   }
@@ -266,7 +267,7 @@ public:
         printf("sendRecordedInterests(): tmp_name: %s\n", tmp_name);
       
       ndn::Interest i(tmp_name);
-      i.setInterestLifetime(ndn::time::milliseconds(1000));
+      i.setInterestLifetime(ndn::time::milliseconds(0));
       i.setMustBeFresh(true);
       m_face.expressInterest(i,
                              bind(&NdnmapClient::onData, this, _1, _2),
@@ -506,7 +507,7 @@ char_data_handler(void* data, const char* s, int len)
     ctime.tm_isdst = -1;
     
     std::time_t epochSecondsLocal = std::mktime(&ctime);
-    std::cout << "epochSecondsLocal: " << epochSecondsLocal << std::endl;
+//    std::cout << "epochSecondsLocal: " << epochSecondsLocal << std::endl;
 
 //    std::tm* utcTm = std::gmtime((const time_t*)&epochSecondsLocal);
 //    std::time_t epochSeconds = std::mktime(utcTm);
@@ -562,8 +563,7 @@ main(int argc, char* argv[])
 {
   int option;
   
-  
-  while ((option = getopt(argc, argv, "hi:")) != -1) {
+  while ((option = getopt(argc, argv, "hid:")) != -1) {
     switch (option)
     {
       case 'i':
@@ -572,6 +572,10 @@ main(int argc, char* argv[])
         
       case 'h':
         ndnmapClient.usage();
+        break;
+        
+      case 'd':
+        DEBUG = atoi(optarg);
         break;
         
       default:
