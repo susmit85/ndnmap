@@ -12,9 +12,10 @@
 #include <netdb.h>
 #include <sys/wait.h>
 
-#define DEBUG 1
+
 #define MON_NAME_PREFIX "ndn:/ndn/edu/wustl/ndnstatus"
 
+int DEBUG = 0;
 class ndnmapServer
 {
 public:
@@ -60,7 +61,9 @@ public:
     "\n"
     "  -n int -  number_of_linkids supplied by the linkfile"
     "\n"
-    "  -s ipaddr - addr added to curl command for ndn map" << std::endl;
+    "  -s ipaddr - addr added to curl command for ndn map"
+    "\n"
+    "  -d - set debug mode: 1 - debug on, 0- debug off (default)\n" << std::endl;
     exit(1);
   }
   int
@@ -214,7 +217,7 @@ main(int argc, char* argv[])
   
 
   // Parse cmd-line arguments
-  while ((option = getopt(argc, argv, "hn:f:s:")) != -1)
+  while ((option = getopt(argc, argv, "hn:f:s:d:")) != -1)
   {
     switch (option)
     {
@@ -232,6 +235,10 @@ main(int argc, char* argv[])
       case 's':
         ndnmapServer.setMapServerAddr((std::string&)(optarg));
         break;
+      case 'd':
+        DEBUG = atoi(optarg);
+        break;
+        
       default:
       case 'h':
         ndnmapServer.usage();

@@ -23,7 +23,6 @@
 #include <expat.h>
 
 #define NUM_RECORDED_INTERESTS 2048
-#define DEBUG 1
 #define MON_NAME_PREFIX "ndn:/ndn/edu/wustl/ndnstatus"
 
 void start_element(void *data, const char *el, const char **attr);
@@ -32,6 +31,7 @@ void char_data_handler(void* data, const char* s, int len);
 
 
 // global variables to support xml parsing
+int DEBUG = 0;
 int parser_on = 0;
 char current_element[256];
 char current_time[50];
@@ -66,7 +66,7 @@ public:
     m_myipaddr.clear();
     m_pollPeriod = 1;
     recordedInterestIndex = 0;
-
+    
   }
   
   void
@@ -78,6 +78,7 @@ public:
     "\n"
     " \t-h - print this message and exit\n"
     " \t-i <ipaddr> - host ip address (of this host) to be included in interests\n"
+    " \t-d - set debug mode: 1 - debug on, 0- debug off (default)\n"
     "\n";
     exit(1);
   }
@@ -154,7 +155,7 @@ public:
       }
     }
   }
-
+  
   // This function send http request to the local ndnd.
   // char * response - stores http response
   int SendHTTPGetRequest(char * response)
@@ -249,12 +250,12 @@ public:
     {
       if (recordedInterestData[i].valid == false)
         return;
-     
+      
       if (DEBUG)
         printf("sendRecordedInterests(): interest[%i]: %s %ld %ld %s\n", i, recordedInterestData[i].ipaddr ,
-                                                                          recordedInterestData[i].tx ,
-                                                                          recordedInterestData[i].rx ,
-                                                                          recordedInterestData[i].current_time);
+               recordedInterestData[i].tx ,
+               recordedInterestData[i].rx ,
+               recordedInterestData[i].current_time);
       
       sprintf(tmp_name, "%s/%s/%s/%s/%ld/%ld", MON_NAME_PREFIX, m_myipaddr.c_str(),
               recordedInterestData[i].ipaddr,
@@ -266,7 +267,7 @@ public:
         printf("sendRecordedInterests(): tmp_name: %s\n", tmp_name);
       
       ndn::Interest i(tmp_name);
-      i.setInterestLifetime(ndn::time::milliseconds(1000));
+      i.setInterestLifetime(ndn::time::milliseconds(0));
       i.setMustBeFresh(true);
       m_face.expressInterest(i,
                              bind(&NdnmapClient::onData, this, _1, _2),
@@ -295,6 +296,12 @@ public:
       
       unsigned int size = 1024*1024;
       
+      // debug vars
+      time_t beforeHttp;
+      time_t afterHttp;
+      time_t beforeSleep;
+      time_t afterSleep;
+      
       xml_response = (char*)malloc(sizeof(*xml_response)*size);
       
       while (res >= 0 )
@@ -309,7 +316,15 @@ public:
         XML_SetElementHandler(parser, start_element, end_element);
         XML_SetCharacterDataHandler(parser, char_data_handler);
         
+        if (DEBUG)
+        {
+          beforeHttp = time(NULL);
+        }
         res = SendHTTPGetRequest(xml_response);
+        if (DEBUG)
+        {
+          afterHttp = time(NULL);
+        }
         if (res < 1)
         {
           perror("XML get failed\n");
@@ -322,7 +337,7 @@ public:
         while(skiplines < 5)
         {
           if (xml_response[offset] == '\n')
-          ++skiplines;
+            ++skiplines;
           ++offset;
         }
         res = XML_Parse(parser, xml_response+offset, strlen(xml_response+offset), 1);
@@ -338,14 +353,33 @@ public:
           current_face = NULL;
         }
         XML_ParserFree(parser);
-       
+        
         if (DEBUG)
         {
           printf("ABOUT TO PRINT FACES LIST\n");
           printInterests();
         }
         sendRecordedInterests();
+        
+        if (DEBUG)
+        {
+          beforeSleep = time(NULL);
+        }
+        
         sleep(m_pollPeriod);
+        
+        if (DEBUG)
+        {
+          afterSleep = time(NULL);
+        }
+        
+        if (DEBUG)
+        {
+          printf("before http system time is %s",ctime(&beforeHttp));
+          printf("after http system time is %s", ctime(&afterHttp));
+          printf("before sleep system time is %s",ctime(&beforeSleep));
+          printf("after sleep system time is %s",ctime(&afterSleep));
+        }
       }
       free(xml_response);
       printf("exit client...\n");
@@ -462,31 +496,27 @@ char_data_handler(void* data, const char* s, int len)
   else if (strcmp(current_element, "currentTime") == 0)
   {
     // example of current time format: 2014-08-21T07:27:42.217000
-    std::string stime(tmp_str);
-    std::stringstream epochTime;
-    
+    // xml time is not updated but every 5 seconds - so ignore it!
     
     std::tm ctime;
-    std::cout << "currentTime: " << tmp_str << std::endl;
-    
-    strptime(tmp_str, "%FT%T%Z", &ctime);
-    ctime.tm_isdst = -1;
-    
-    std::time_t epochSecondsLocal = std::mktime(&ctime);
-    std::cout << "epochSecondsLocal: " << epochSecondsLocal << std::endl;
+    std::stringstream realEpochTime;
+    ndn::time::system_clock::TimePoint realCurrentTime = ndn::time::system_clock::now();
+    std::string currentTimeStr = ndn::time::toString(realCurrentTime, "%Y-%m-%dT%H:%M:%S%F");
 
-//    std::tm* utcTm = std::gmtime((const time_t*)&epochSecondsLocal);
-//    std::time_t epochSeconds = std::mktime(utcTm);
-//    std::cout << "epochSeconds: " << epochSeconds << std::endl;
-//    
+    strptime(currentTimeStr.c_str(), "%FT%T%Z", &ctime);
+    std::string stime(currentTimeStr);
+    std::time_t realEpochSeconds = std::mktime(&ctime);
     std::size_t pos = stime.find(".");
-    std::string epochMilli = stime.substr (pos+1);
+    std::string realEpochMilli = stime.substr(pos+1);
+    realEpochTime << realEpochSeconds << "." << realEpochMilli;
     
-    
-    epochTime << epochSecondsLocal << "." << epochMilli;
-    strcpy(current_time, epochTime.str().c_str());//tmp_str);
-  
-    //strcpy(current_time, tmp_str);
+    if (DEBUG)
+    {
+      std::cout << "currentTime from xml: " << tmp_str << std::endl;
+      std::cout << "'real' currentTime" << currentTimeStr << std::endl;;
+      std::cout << "real epochTime: " << realEpochTime.str().c_str() << std::endl;
+    }
+    strcpy(current_time, realEpochTime.str().c_str());
   }
   else if (strcmp(current_element, "remoteUri") == 0)
   {
@@ -529,8 +559,7 @@ main(int argc, char* argv[])
 {
   int option;
   
-  
-  while ((option = getopt(argc, argv, "hi:")) != -1) {
+  while ((option = getopt(argc, argv, "hi:d:")) != -1) {
     switch (option)
     {
       case 'i':
@@ -539,6 +568,10 @@ main(int argc, char* argv[])
         
       case 'h':
         ndnmapClient.usage();
+        break;
+        
+      case 'd':
+        DEBUG = atoi(optarg);
         break;
         
       default:
