@@ -66,7 +66,7 @@ public:
     m_myipaddr.clear();
     m_pollPeriod = 1;
     recordedInterestIndex = 0;
-
+    
   }
   
   void
@@ -155,7 +155,7 @@ public:
       }
     }
   }
-
+  
   // This function send http request to the local ndnd.
   // char * response - stores http response
   int SendHTTPGetRequest(char * response)
@@ -250,12 +250,12 @@ public:
     {
       if (recordedInterestData[i].valid == false)
         return;
-     
+      
       if (DEBUG)
         printf("sendRecordedInterests(): interest[%i]: %s %ld %ld %s\n", i, recordedInterestData[i].ipaddr ,
-                                                                          recordedInterestData[i].tx ,
-                                                                          recordedInterestData[i].rx ,
-                                                                          recordedInterestData[i].current_time);
+               recordedInterestData[i].tx ,
+               recordedInterestData[i].rx ,
+               recordedInterestData[i].current_time);
       
       sprintf(tmp_name, "%s/%s/%s/%s/%ld/%ld", MON_NAME_PREFIX, m_myipaddr.c_str(),
               recordedInterestData[i].ipaddr,
@@ -337,7 +337,7 @@ public:
         while(skiplines < 5)
         {
           if (xml_response[offset] == '\n')
-          ++skiplines;
+            ++skiplines;
           ++offset;
         }
         res = XML_Parse(parser, xml_response+offset, strlen(xml_response+offset), 1);
@@ -353,7 +353,7 @@ public:
           current_face = NULL;
         }
         XML_ParserFree(parser);
-       
+        
         if (DEBUG)
         {
           printf("ABOUT TO PRINT FACES LIST\n");
@@ -372,7 +372,7 @@ public:
         {
           afterSleep = time(NULL);
         }
-
+        
         if (DEBUG)
         {
           printf("before http system time is %s",ctime(&beforeHttp));
@@ -496,31 +496,27 @@ char_data_handler(void* data, const char* s, int len)
   else if (strcmp(current_element, "currentTime") == 0)
   {
     // example of current time format: 2014-08-21T07:27:42.217000
-    std::string stime(tmp_str);
-    std::stringstream epochTime;
-    
+    // xml time is not updated but every 5 seconds - so ignore it!
     
     std::tm ctime;
-    std::cout << "currentTime: " << tmp_str << std::endl;
-    
-    strptime(tmp_str, "%FT%T%Z", &ctime);
-    ctime.tm_isdst = -1;
-    
-    std::time_t epochSecondsLocal = std::mktime(&ctime);
-//    std::cout << "epochSecondsLocal: " << epochSecondsLocal << std::endl;
+    std::stringstream realEpochTime;
+    ndn::time::system_clock::TimePoint realCurrentTime = ndn::time::system_clock::now();
+    std::string currentTimeStr = ndn::time::toString(realCurrentTime, "%Y-%m-%dT%H:%M:%S%F");
 
-//    std::tm* utcTm = std::gmtime((const time_t*)&epochSecondsLocal);
-//    std::time_t epochSeconds = std::mktime(utcTm);
-//    std::cout << "epochSeconds: " << epochSeconds << std::endl;
-//    
+    strptime(currentTimeStr.c_str(), "%FT%T%Z", &ctime);
+    std::string stime(currentTimeStr);
+    std::time_t realEpochSeconds = std::mktime(&ctime);
     std::size_t pos = stime.find(".");
-    std::string epochMilli = stime.substr (pos+1);
+    std::string realEpochMilli = stime.substr(pos+1);
+    realEpochTime << realEpochSeconds << "." << realEpochMilli;
     
-    
-    epochTime << epochSecondsLocal << "." << epochMilli;
-    strcpy(current_time, epochTime.str().c_str());//tmp_str);
-  
-    //strcpy(current_time, tmp_str);
+    if (DEBUG)
+    {
+      std::cout << "currentTime from xml: " << tmp_str << std::endl;
+      std::cout << "'real' currentTime" << currentTimeStr << std::endl;;
+      std::cout << "real epochTime: " << realEpochTime.str().c_str() << std::endl;
+    }
+    strcpy(current_time, realEpochTime.str().c_str());
   }
   else if (strcmp(current_element, "remoteUri") == 0)
   {
@@ -563,7 +559,7 @@ main(int argc, char* argv[])
 {
   int option;
   
-  while ((option = getopt(argc, argv, "hid:")) != -1) {
+  while ((option = getopt(argc, argv, "hi:d:")) != -1) {
     switch (option)
     {
       case 'i':
