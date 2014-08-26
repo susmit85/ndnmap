@@ -157,6 +157,28 @@ public:
     
     Block block;
     size_t offset = 0;
+    
+    std::string currentTime;
+    std::tm ctime;
+    std::stringstream realEpochTime;
+    ndn::time::system_clock::TimePoint realCurrentTime = ndn::time::system_clock::now();
+    std::string currentTimeStr = ndn::time::toString(realCurrentTime, "%Y-%m-%dT%H:%M:%S%F");
+    
+    strptime(currentTimeStr.c_str(), "%FT%T%Z", &ctime);
+    std::string stime(currentTimeStr);
+    std::time_t realEpochSeconds = std::mktime(&ctime);
+    std::size_t pos = stime.find(".");
+    std::string realEpochMilli = stime.substr(pos+1);
+    realEpochTime << realEpochSeconds << "." << realEpochMilli;
+    
+    if (DEBUG)
+    {
+      std::cout << "'real' currentTime" << currentTimeStr << std::endl;;
+      std::cout << "real epochTime: " << realEpochTime.str().c_str() << std::endl;
+    }
+    currentTime =  realEpochTime.str();
+
+    
     while (offset < buf->size())
     {
       bool ok = Block::fromBuffer(buf, offset, block);
@@ -171,9 +193,6 @@ public:
       nfd::FaceStatus faceStatus(block);
       
       // take only udp4 and tcp4 faces at the moment
-      //struct faceStatus currentFace;
-      std::string currentTime;
-
       std::string remoteUri = faceStatus.getRemoteUri();
       
       if(remoteUri.compare(0,4,"tcp4") != 0 &&
@@ -187,25 +206,6 @@ public:
       uint64_t tx = faceStatus.getNOutBytes();
       uint64_t rx = faceStatus.getNInBytes();
       uint64_t faceId = faceStatus.getFaceId();
-      
-      std::tm ctime;
-      std::stringstream realEpochTime;
-      ndn::time::system_clock::TimePoint realCurrentTime = ndn::time::system_clock::now();
-      std::string currentTimeStr = ndn::time::toString(realCurrentTime, "%Y-%m-%dT%H:%M:%S%F");
-      
-      strptime(currentTimeStr.c_str(), "%FT%T%Z", &ctime);
-      std::string stime(currentTimeStr);
-      std::time_t realEpochSeconds = std::mktime(&ctime);
-      std::size_t pos = stime.find(".");
-      std::string realEpochMilli = stime.substr(pos+1);
-      realEpochTime << realEpochSeconds << "." << realEpochMilli;
-      
-      if (DEBUG)
-      {
-        std::cout << "'real' currentTime" << currentTimeStr << std::endl;;
-        std::cout << "real epochTime: " << realEpochTime.str().c_str() << std::endl;
-      }
-      currentTime =  realEpochTime.str();
       
       if (DEBUG)
         std::cout << "about to store " << faceId << ": " << rx << ", " << tx << ", " << remoteIp << std::endl;
