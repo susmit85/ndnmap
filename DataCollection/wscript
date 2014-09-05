@@ -32,12 +32,12 @@ def build(bld):
       features='cxx cxxprogram',
       source='nfdXMLStatusClient.cpp',
       use='BOOST NDN_CXX LIBRT LIBRESOLV LEXPAT',
-      lib='ndn-cxx expat boost_random',
+      lib='ndn-cxx boost_random',
       )
 
     bld(target='ndnxmlstat_s',
       features='cxx cxxprogram',
       source='nfdXMLStatusServer.cpp',
       use='BOOST NDN_CXX LIBRT LIBRESOLV LEXPAT',
-      lib='ndn-cxx expat boost_random',
+      lib='ndn-cxx boost_random',
       )
