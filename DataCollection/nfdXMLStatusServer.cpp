@@ -275,6 +275,10 @@ main(int argc, char* argv[])
 	  }
   }
   
+  // register a general prefix
+  // TBD - understand why we need this one...
+  ndnmapServer.registerInterest(MON_NAME_PREFIX);
+  
   ndnmapServer.listen();
   
   printf("exit client...\n");
