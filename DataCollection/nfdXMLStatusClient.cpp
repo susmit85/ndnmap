@@ -239,7 +239,7 @@ public:
         printf("sendRecordedInterests(): tmp_name: %s\n", tmp_name);
       
       Interest i(tmp_name);
-      i.setInterestLifetime(time::milliseconds(0));
+      i.setInterestLifetime(ndn::time::seconds(1));
       i.setMustBeFresh(true);
       m_face.expressInterest(i,
                              bind(&NdnmapClient::onData, this, _1, _2),
