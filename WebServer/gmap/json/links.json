@@ -41,7 +41,7 @@
     },
     {
         "id": 9,
-        "start": "WashU",
+        "start": "WU",
         "end": "UA"
     },
     {
@@ -67,12 +67,12 @@
     {
         "id": 14,
         "start": "UIUC",
-        "end": "WashU"
+        "end": "WU"
     },
     {
         "id": 15,
         "start": "UM",
-        "end": "WashU"
+        "end": "WU"
     },
     {
         "id": 16,
@@ -133,5 +133,30 @@
         "id": 27,
         "start": "UM",
         "end": "ORANGE1"
+    },
+    {
+        "id": 28,
+        "start": "PKU",
+        "end": "BUPT"
+    },
+    {
+        "id": 29,
+        "start": "TONGJI",
+        "end": "BUPT"
+    },
+    {
+        "id": 30,
+        "start": "ORANGE1",
+        "end": "URJC"
+    },
+    {
+        "id": 31,
+        "start": "URJC",
+        "end": "LIP6"
+    },
+    {
+        "id": 32,
+        "start": "URJC",
+        "end": "WU"
     }
 ]

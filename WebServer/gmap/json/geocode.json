@@ -2,28 +2,28 @@
     "UA": {
         "name": "The University of Arizona",
         "shortname": "UA",
-        "site": "http://hobo.cs.arizona.edu:6363/",
+        "site": "http://hobo.cs.arizona.edu:80/",
         "backbone": false,
         "position": [ 32.22896140, -110.94832260 ]
     },
     "CSU": {
         "name": "Colorado State University",
         "shortname": "CSU",
-        "site": "http://mccoy.netsec.colostate.edu:6363/",
+        "site": "http://mccoy.netsec.colostate.edu:80/",
         "backbone": false,
         "position": [ 40.57471750, -105.08482930 ]
     },
     "UM": {
         "name": "University of Memphis",
         "shortname": "UM",
-        "site": "http://titan.cs.memphis.edu:6363/",
+        "site": "http://titan.cs.memphis.edu:80/",
         "backbone": false,
         "position": [ 35.11860990, -89.93700109999999 ]
     },
     "NEU": {
         "name": "Northeastern University",
         "shortname": "NEU",
-        "site": "http://129.10.52.193:6363/",
+        "site": "http://129.10.52.193:80/",
         "backbone": false,        
         "_real_position": [ 42.33987830, -71.08873579999999 ],
         "position": [ 42.7, -71.08873579999999 ]
@@ -31,7 +31,7 @@
     "MICH": {
         "name": "University Michigan",
         "shortname": "MICH",
-        "site": "http://ndn0.eecs.umich.edu:6363/",
+        "site": "http://ndn0.eecs.umich.edu:80/",
         "backbone": false,
         "_real_position": [ 42.10260390, -80.23171080000002 ],
         "position": [ 42.10260390, -83.4 ]
@@ -39,7 +39,7 @@
     "UIUC": {
         "name": "University of Illinois, Urbana-Champaign",
         "shortname": "UIUC",
-        "site": "http://tarekb17.cs.uiuc.edu:6363/",
+        "site": "http://tarekb17.cs.uiuc.edu:80/",
         "backbone": false,
         "_real_position": [ 40.10260390, -88.23171080000002 ],
         "position": [ 40.60260390, -88.23171080000002 ]
@@ -47,7 +47,7 @@
     "UCLA": {
         "name": "University of California, Los Angeles",
         "shortname": "UCLA",
-        "site": "http://spurs.cs.ucla.edu:6363/",
+        "site": "http://spurs.cs.ucla.edu:80/",
         "backbone": false,
         "_real_position": [ 34.07282250, -118.43873980 ],
         "position": [ 35.5, -120 ]
@@ -55,7 +55,7 @@
     "REMAP": {
         "name": "Remap at University of California, Los Angeles",
         "shortname": "REMAP",
-        "site": "http://aleph.ndn.ucla.edu:6363/",
+        "site": "http://aleph.ndn.ucla.edu:80/",
         "backbone": false,
         "_real_position": [ 34.07282250, -118.43873980 ],
         "position": [ 34.4, -117.14807210 ]
@@ -63,15 +63,15 @@
     "UCSD": {
         "name": "University of California San Diego",
         "shortname": "CAIDA/UCSD",
-        "site": "http://click.caida.org:6363/",
+        "site": "http://click.caida.org:80/",
         "backbone": false,
         "_real_position": [ 32.87357720, -117.23781110 ],
         "position": [ 31.87357720, -119.23781110 ]
     },
-    "WashU": {
+    "WU": {
         "name": "Washington University in St. Louis",
-        "shortname": "WashU",
-        "site": "http://wundngw.arl.wustl.edu:6363/",
+        "shortname": "WU",
+        "site": "http://wundngw.arl.wustl.edu:80/",
         "backbone": false,
         "_real_position": [ 38.64907010, -90.30334710 ],
         "position": [ 38.14907010, -90.30334710 ]
@@ -79,7 +79,7 @@
     "UCI": {
         "name": "University of California, Irvine",
         "shortname": "UCI",
-        "site": "http://ndnhub.ics.uci.edu:6363/",
+        "site": "http://ndnhub.ics.uci.edu:80/",
         "backbone": false,
         "_real_position": [ 33.6495, -117.845798 ],
         "position": [ 33.1495, -118.145798 ]
@@ -87,15 +87,23 @@
     "PKU": {
         "name": "Peking University",
         "shortname": "PKU",
-        "site": "http://162.105.146.26:6363/",
+        "site": "http://162.105.146.26:80/",
         "backbone": false,
         "_real_position": [ 39.59, 116.18 ],
         "position": [ 39.59, 116.18 ]
     },
+    "BUPT": {
+        "name": "Beijing University of Posts and Telecommunications",
+        "shortname": "BUPT",
+        "site": "http://114.247.165.44:80/",
+        "backbone": false,
+        "_real_position": [ 39.59, 116.18 ],
+        "position": [ 37.59, 114.18 ]
+    },
     "TONGJI": {
         "name": "Tongji University",
         "shortname": "TONGJI",
-        "site": "http://202.120.188.176:6363/",
+        "site": "http://202.120.188.176:80/",
         "backbone": false,
         "_real_position": [ 31.12, 121.30 ],
         "position": [ 31.12, 121.30 ]
@@ -103,15 +111,24 @@
     "LIP6": {
         "name": "University Pierre et Marie Curie, Sorbonne Universities LIP6",
         "shortname": "LIP6",
-        "site": "http://132.227.62.163:6363/",
+        "site": "http://132.227.62.163:80/",
         "backbone": false,
-        "position": [ 48.50, 2.21 ]
+        "_real_position": [ 48.50, 2.21 ],
+        "position": [ 48.50, 1.71 ]
     },
     "ORANGE1": {
-        "name": "Orange Labs)",
+        "name": "Orange Labs",
         "shortname": "ORANGE1",
-        "site": "http://161.105.194.154:6363/",
+        "site": "http://161.105.194.154:80/",
         "backbone": false,
-        "position": [ 47.0, 2.3]
+        "_real_position": [ 47.0, 2.3],
+        "position": [ 47.0, 2.8]
+    },
+    "URJC": {
+        "name": "Universidad Rey Juan Carlos (King Juan Carlos University)",
+        "shortname": "URJC",
+        "site": "http://193.147.51.186:80/",
+        "backbone": false,
+        "position": [ 40.3359, -3.8732]
     }
 }
