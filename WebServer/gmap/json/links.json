@@ -158,5 +158,25 @@
         "id": 32,
         "start": "URJC",
         "end": "WU"
+    },
+    {
+        "id": 33,
+        "start": "BASEL",
+        "end": "LIP6"
+    },
+    {
+        "id": 34,
+        "start": "BASEL",
+        "end": "ORANGE1"
+    },
+    {
+        "id": 35,
+        "start": "BASEL",
+        "end": "URJC"
+    },
+    {
+        "id": 36,
+        "start": "BASEL",
+        "end": "PKU"
     }
 ]

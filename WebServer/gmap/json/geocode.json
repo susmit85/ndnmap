@@ -130,5 +130,12 @@
         "site": "http://193.147.51.186:80/",
         "backbone": false,
         "position": [ 40.3359, -3.8732]
+    },
+    "BASEL": {
+        "name": "University of Basel",
+        "shortname": "BASEL",
+        "site": "http://192.43.193.111:80/",
+        "backbone": false,
+        "position": [ 47.55858, 7.58360]
     }
 }
