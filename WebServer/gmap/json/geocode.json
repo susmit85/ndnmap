@@ -90,7 +90,7 @@
         "site": "http://162.105.146.26:80/",
         "backbone": false,
         "_real_position": [ 39.59, 116.18 ],
-        "position": [ 39.59, 116.18 ]
+        "position": [ 40.00, 116.18 ]
     },
     "BUPT": {
         "name": "Beijing University of Posts and Telecommunications",
@@ -137,5 +137,12 @@
         "site": "http://192.43.193.111:80/",
         "backbone": false,
         "position": [ 47.55858, 7.58360]
+    },
+    "WASEDA": {
+        "name": "Waseda University",
+        "shortname": "WASEDA",
+        "site": "http://133.9.73.66:80/",
+        "backbone": false,
+        "position": [ 35.7092, 139.7193]
     }
 }
