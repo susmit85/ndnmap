@@ -178,5 +178,25 @@
         "id": 36,
         "start": "BASEL",
         "end": "PKU"
+    },
+    {
+        "id": 37,
+        "start": "WASEDA",
+        "end": "BUPT"
+    },
+    {
+        "id": 38,
+        "start": "WASEDA",
+        "end": "TONGJI"
+    },
+    {
+        "id": 39,
+        "start": "WASEDA",
+        "end": "UA"
+    },
+    {
+        "id": 40,
+        "start": "WASEDA",
+        "end": "ORANGE1"
     }
 ]
