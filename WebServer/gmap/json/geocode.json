@@ -116,9 +116,9 @@
         "_real_position": [ 48.50, 2.21 ],
         "position": [ 48.50, 1.71 ]
     },
-    "ORANGE1": {
+    "ORANGE": {
         "name": "Orange Labs",
-        "shortname": "ORANGE1",
+        "shortname": "ORANGE",
         "site": "http://161.105.194.154:80/",
         "backbone": false,
         "_real_position": [ 47.0, 2.3],
