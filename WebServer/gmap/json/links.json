@@ -198,5 +198,20 @@
         "id": 40,
         "start": "WASEDA",
         "end": "ORANGE"
+    },
+    {
+        "id": 41,
+        "start": "SYSTEMX",
+        "end": "ORANGE"
+    },
+    {
+        "id": 42,
+        "start": "SYSTEMX",
+        "end": "LIP6"
+    },
+    {
+        "id": 43,
+        "start": "SYSTEMX",
+        "end": "BASEL"
     }
 ]
