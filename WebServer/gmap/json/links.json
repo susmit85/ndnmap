@@ -127,12 +127,12 @@
     {
         "id": 26,
         "start": "LIP6",
-        "end": "ORANGE1"
+        "end": "ORANGE"
     },
     {
         "id": 27,
         "start": "UM",
-        "end": "ORANGE1"
+        "end": "ORANGE"
     },
     {
         "id": 28,
@@ -146,7 +146,7 @@
     },
     {
         "id": 30,
-        "start": "ORANGE1",
+        "start": "ORANGE",
         "end": "URJC"
     },
     {
@@ -167,7 +167,7 @@
     {
         "id": 34,
         "start": "BASEL",
-        "end": "ORANGE1"
+        "end": "ORANGE"
     },
     {
         "id": 35,
@@ -191,12 +191,27 @@
     },
     {
         "id": 39,
-        "start": "WASEDA",
-        "end": "UA"
+        "start": "UA",
+        "end": "WASEDA"
     },
     {
         "id": 40,
         "start": "WASEDA",
-        "end": "ORANGE1"
+        "end": "ORANGE"
+    },
+    {
+        "id": 41,
+        "start": "SYSTEMX",
+        "end": "ORANGE"
+    },
+    {
+        "id": 42,
+        "start": "SYSTEMX",
+        "end": "LIP6"
+    },
+    {
+        "id": 43,
+        "start": "SYSTEMX",
+        "end": "BASEL"
     }
 ]

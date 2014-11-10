@@ -116,13 +116,21 @@
         "_real_position": [ 48.50, 2.21 ],
         "position": [ 48.50, 1.71 ]
     },
-    "ORANGE1": {
+    "ORANGE": {
         "name": "Orange Labs",
-        "shortname": "ORANGE1",
+        "shortname": "ORANGE",
         "site": "http://161.105.194.154:80/",
         "backbone": false,
         "_real_position": [ 47.0, 2.3],
-        "position": [ 47.0, 2.8]
+        "position": [ 47.5, 2.8]
+    },
+    "SYSTEMX": {
+        "name": "Institute for Technological Research SystemX",
+        "shortname": "SYSTEMX",
+        "site": "http://systemx-ndn-1.enst.fr:80/",
+        "backbone": false,
+        "_real_position": [ 48.71, 2.19],
+        "position": [ 48.71, 3.19]
     },
     "URJC": {
         "name": "Universidad Rey Juan Carlos (King Juan Carlos University)",
