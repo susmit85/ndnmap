@@ -28,6 +28,7 @@ public:
   {
     m_mapServerAddr = "128.252.153.27";
     m_pollPeriod = 1;
+    m_timeoutPeriod = 500;
   }
   
   void
@@ -35,7 +36,7 @@ public:
   {
     std::cout << "\n Usage:\n " << m_programName <<
     ""
-    "[-h] -f link_file -n number_of_linkids [-s map_addr] [-t poll_period] [-d debug_mode]\n"
+    "[-h] -f link_file -n number_of_linkids [-s map_addr] [-t poll_period] [-r timeout_period] [-d debug_mode]\n"
     " Poll the status of remote clients and update ndnmap website with the status of the links."
     "\n"
     " The clients to pull from are specified in the input file, as well as their requested links "
@@ -53,6 +54,8 @@ public:
     "  -s map_addr \t\t- addr added to curl command for ndn map"
     "\n"
     "  -s poll_period \t- in seconds, default is 1 second"
+    "\n"
+    "  -r timeout_period \t- in milliseconds, default is 500 ms"
     "\n"
     "  -d debug mode \t-  1 set debug on, 0 set debug off (default)\n" << std::endl;
     exit(1);
@@ -106,14 +109,13 @@ public:
         cmdStr += "/" + reply.m_statusList[i].getTimestamp() + "/";
         cmdStr += std::to_string(reply.m_statusList[i].getTx()) + "/";
         cmdStr += std::to_string(reply.m_statusList[i].getRx());
-//        sprintf(cmdStr, "http://%s/bw/%d/%s/%u/%u", m_mapServerAddr.c_str(), LinkId, reply.m_statusList[i].m_timestamp, reply.m_statusList[i].m_tx, reply.m_statusList[i].m_rx);
         
         if (DEBUG)
           std::cout << "cmd to pass to curl: " << cmdStr << std::endl;
         
         int status;
         // check for zombies
-        int deadChildPid = waitpid(-1, &status, WNOHANG);
+        waitpid(-1, &status, WNOHANG);
         int pid;
         if ((pid = fork()) < 0)
           printf("for failed for curl %s\n", cmdStr.c_str());
@@ -123,7 +125,7 @@ public:
             execl("/usr/bin/curl","curl", "-s", "-L", cmdStr.c_str(), NULL);
         }
         // check for zombies again
-        deadChildPid = waitpid(-1, &status, WNOHANG);
+        waitpid(-1, &status, WNOHANG);
         
       }
       reply.m_statusList.clear();
@@ -157,7 +159,7 @@ public:
         name.append(dstIp);
       }
       ndn::Interest i(name);
-      i.setInterestLifetime(ndn::time::milliseconds(500));
+      i.setInterestLifetime(ndn::time::milliseconds(m_timeoutPeriod));
       i.setMustBeFresh(true);
       
       m_face.expressInterest(i,
@@ -174,8 +176,8 @@ public:
     try
     {
       std::cout << m_programName <<  "polling every " << m_pollPeriod << " seconds" << std::endl;
-      int res;
-      while (res >= 0 )
+      std::cout << m_programName <<  "timeout set to  " << m_timeoutPeriod << " milliseconds" << std::endl;
+      while (true)
       {
         // Schedule a new event
 //        scheduler.scheduleEvent(ndn::time::seconds(m_pollPeriod),
@@ -203,6 +205,11 @@ public:
   {
     m_pollPeriod = period;
   }
+  void
+  setTimeoutPeriod(int to)
+  {
+    m_timeoutPeriod = to;
+  }
   
   class linkPair
   {
@@ -218,6 +225,7 @@ private:
   ndn::Face m_face;
   std::string m_programName;
   int m_pollPeriod;
+  int m_timeoutPeriod;
   std::string m_mapServerAddr;
   
 };
@@ -231,7 +239,7 @@ main(int argc, char* argv[])
   int num_lines = 0;
   
   // Parse cmd-line arguments
-  while ((option = getopt(argc, argv, "hn:f:s:t:d:")) != -1)
+  while ((option = getopt(argc, argv, "hn:f:s:t:r:d:")) != -1)
   {
     switch (option)
     {
@@ -251,6 +259,9 @@ main(int argc, char* argv[])
         break;
       case 't':
         ndnmapServer.setPollPeriod(atoi(optarg));
+        break;
+      case 'r':
+        ndnmapServer.setTimeoutPeriod(atoi(optarg));
         break;
       case 'd':
         DEBUG = atoi(optarg);

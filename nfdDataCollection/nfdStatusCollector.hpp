@@ -315,12 +315,9 @@ public:
     
     wire.parse();
     
-    std::cout << "1. TLV type: " + boost::lexical_cast<std::string>(wire.type()) <<std::endl;
-    
     for (Block::element_const_iterator it = wire.elements_begin();
          it != wire.elements_end(); it++)
     {
-      std::cout << "2. TLV type: " + boost::lexical_cast<std::string>(wire.type()) <<std::endl;
       if (it->type() == statusCollector::tlv::FaceStatus)
       {
         m_statusList.push_back(FaceStatus(*it));
