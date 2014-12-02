@@ -34,10 +34,13 @@
 34 /ndn/com/orange 192.43.193.111
 35 /ndn/ch/unibas 193.147.51.186
 36 /ndn/ch/unibas 162.105.146.26
-37 /ndn/ch/edu/bupt 133.9.73.66
-38 /ndn/ch/edu/tongji 133.9.73.66
+37 /ndn/cn/edu/bupt 133.9.73.66
+38 /ndn/cn/edu/tongji 133.9.73.66
 39 /ndn/edu/arizona 133.9.73.66
 40 /ndn/com/orange 133.9.73.66
 41 /ndn/com/orange 137.194.54.81
 42 /ndn/fr/lip6 137.194.54.81
 43 /ndn/ch/unibas 137.194.54.81
+44 /ndn/edu/colostate 128.187.81.12
+45 /ndn/edu/ucla/remap 128.187.81.12
+46 /ndn/edu/arizona 128.187.81.12
