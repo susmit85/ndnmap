@@ -159,5 +159,12 @@
         "site": "http://pasta10.cs.byu.edu:80/",
         "backbone": false,
         "position": [ 40.14, -111.39]
+    },
+    "ANYANG": {
+        "name": "Anyang University",
+        "shortname": "ANYANG",
+        "site": "http://210.114.89.49:80/",
+        "backbone": false,
+        "position": [ 37.7, 127.00]
     }
 }

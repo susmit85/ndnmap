@@ -228,5 +228,25 @@
         "id": 46,
         "start": "BYU",
         "end": "UA"
+    },
+    {
+        "id": 47,
+        "start": "ANYANG",
+        "end": "WASEDA"
+    },
+    {
+        "id": 48,
+        "start": "ANYANG",
+        "end": "TONGJI"
+    },
+    {
+        "id": 49,
+        "start": "ANYANG",
+        "end": "BUPT"
+    },
+    {
+        "id": 50,
+        "start": "ANYANG",
+        "end": "PKU"
     }
 ]
