@@ -34,7 +34,7 @@
         "site": "http://ndn0.eecs.umich.edu:80/",
         "backbone": false,
         "_real_position": [ 42.10260390, -80.23171080000002 ],
-        "position": [ 42.10260390, -83.4 ]
+        "position": [ 42.50260390, -83.4 ]
     },
     "UIUC": {
         "name": "University of Illinois, Urbana-Champaign",
@@ -166,5 +166,12 @@
         "site": "http://210.114.89.49:80/",
         "backbone": false,
         "position": [ 37.7, 127.00]
+    },
+    "PADUA": {
+        "name": "University of Padua",
+        "shortname": "PADUA",
+        "site": "http://192.43.193.111:80/",
+        "backbone": false,
+        "position": [ 45.35858, 11.78360]
     }
 }

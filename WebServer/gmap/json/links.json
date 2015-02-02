@@ -233,5 +233,25 @@
         "id": 50,
         "start": "ANYANG",
         "end": "PKU"
+    },
+    {
+        "id": 52,
+        "start": "UIUC",
+        "end": "PADUA"
+    },
+    {
+        "id": 53,
+        "start": "BASEL",
+        "end": "PADUA"
+    },
+    {
+        "id": 54,
+        "start": "URJC",
+        "end": "PADUA"
+    },
+    {
+        "id": 55,
+        "start": "ORANGE",
+        "end": "PADUA"
     }
 ]
