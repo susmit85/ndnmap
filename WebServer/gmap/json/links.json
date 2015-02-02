@@ -140,11 +140,6 @@
         "end": "BUPT"
     },
     {
-        "id": 29,
-        "start": "TONGJI",
-        "end": "BUPT"
-    },
-    {
         "id": 30,
         "start": "ORANGE",
         "end": "URJC"
@@ -183,11 +178,6 @@
         "id": 37,
         "start": "WASEDA",
         "end": "BUPT"
-    },
-    {
-        "id": 38,
-        "start": "WASEDA",
-        "end": "TONGJI"
     },
     {
         "id": 39,
@@ -233,11 +223,6 @@
         "id": 47,
         "start": "ANYANG",
         "end": "WASEDA"
-    },
-    {
-        "id": 48,
-        "start": "ANYANG",
-        "end": "TONGJI"
     },
     {
         "id": 49,
