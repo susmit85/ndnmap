@@ -170,7 +170,7 @@
     "PADUA": {
         "name": "University of Padua",
         "shortname": "PADUA",
-        "site": "http://192.43.193.111:80/",
+        "site": "http://ndnnode.math.unipd.it:80/",
         "backbone": false,
         "position": [ 45.35858, 11.78360]
     }
