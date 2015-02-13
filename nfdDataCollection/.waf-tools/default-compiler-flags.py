@@ -16,10 +16,7 @@ def configure(conf):
     areCustomCxxflagsPresent = (len(conf.env.CXXFLAGS) > 0)
     defaultFlags = []
 
-    if conf.options.use_cxx11:
-        defaultFlags += ['-std=c++0x', '-std=c++11']
-    else:
-        defaultFlags += ['-std=c++03']
+    defaultFlags += ['-std=c++0x', '-std=c++11']
 
     defaultFlags += ['-pedantic', '-Wall', '-Wno-long-long', '-Wno-unneeded-internal-declaration']
 

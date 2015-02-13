@@ -6,13 +6,16 @@
 
 #include <boost/asio.hpp>
 #include <ndn-cxx/face.hpp>
-#include <ndn-cxx/util/scheduler.hpp>
 #include <fstream>
 #include <unordered_map>
 #include <list>
 #include <chrono>
 #include "nfdStatusCollector.hpp"
+#include <ndn-cxx/util/scheduler.hpp>
+#include <ndn-cxx/util/scheduler-scoped-event-id.hpp>
+#include <ndn-cxx/util/network-monitor.hpp>
 #include <sys/wait.h>
+
 
 #define APP_SUFFIX "/ndnmap/stats"
 
@@ -24,11 +27,16 @@ class NdnMapServer
 public:
   NdnMapServer(char* programName)
   : m_programName(programName)
-  //, m_face(ioService)
+  , m_face(m_io)
+  , m_scheduler(m_io)
+  , m_terminationSignalSet(m_io)
   {
     m_mapServerAddr = "128.252.153.27";
     m_pollPeriod = 1;
     m_timeoutPeriod = 500;
+    
+    m_networkMonitor.reset(new util::NetworkMonitor(m_io));
+    
   }
   
   void
@@ -53,7 +61,7 @@ public:
     "\n"
     "  -s map_addr \t\t- addr added to curl command for ndn map"
     "\n"
-    "  -s poll_period \t- in seconds, default is 1 second"
+    "  -t poll_period \t- in seconds, default is 1 second"
     "\n"
     "  -r timeout_period \t- in milliseconds, default is 500 ms"
     "\n"
@@ -107,8 +115,8 @@ public:
         cmdStr += "/bw/";
         cmdStr += std::to_string(LinkId);
         cmdStr += "/" + reply.m_statusList[i].getTimestamp() + "/";
-        cmdStr += std::to_string(reply.m_statusList[i].getTx()) + "/";
-        cmdStr += std::to_string(reply.m_statusList[i].getRx());
+        cmdStr += std::to_string(reply.m_statusList[i].getTx() * 8) + "/";
+        cmdStr += std::to_string(reply.m_statusList[i].getRx() * 8);
         
         if (DEBUG)
           std::cout << "cmd to pass to curl: " << cmdStr << std::endl;
@@ -166,27 +174,38 @@ public:
                              bind(&NdnMapServer::onData, this, _1, _2, it->first),
                              bind(&NdnMapServer::onTimeout, this, _1));
       
+      //m_face.processEvents(ndn::time::milliseconds(m_timeoutPeriod));
       if(DEBUG)
         std::cout << "sent: " << name << std::endl;
     }
+    // schedule the next fetch
+    m_scheduler.scheduleEvent(time::seconds(m_pollPeriod), bind(&NdnMapServer::sendInterests, this));
+  }
+  void
+  terminate(const boost::system::error_code& error, int signalNo)
+  {
+    if (error)
+    {
+      std::cout << "error code = " << error << ", signalNo = " << signalNo << std::endl;
+      return;
+    }
+    m_io.stop();
+  }
+  void startScheduling()
+  {
+    // schedule the first event soon
+    m_scheduler.scheduleEvent(time::milliseconds(100), bind(&NdnMapServer::sendInterests, this));
   }
   void run()
   {
-    //ndn::Scheduler scheduler(ioService);
+    m_terminationSignalSet.async_wait(bind(&NdnMapServer::terminate, this, _1, _2));
+    
     try
     {
       std::cout << m_programName <<  "polling every " << m_pollPeriod << " seconds" << std::endl;
       std::cout << m_programName <<  "timeout set to  " << m_timeoutPeriod << " milliseconds" << std::endl;
-      while (true)
-      {
-        // Schedule a new event
-//        scheduler.scheduleEvent(ndn::time::seconds(m_pollPeriod),
-//                                  bind(&NdnMapServer::sendInterests,this));
-        sendInterests();
-        m_face.processEvents();
-        sleep(m_pollPeriod);
-      }
-      printf("exit server...\n");
+      
+      m_io.run();
     }
     catch (std::exception& e)
     {
@@ -221,8 +240,12 @@ public:
   std::unordered_map<std::string,std::list<linkPair>> m_linksList;
   
 private:
-  //boost::asio::io_service ioService;
+  boost::asio::io_service m_io;
   ndn::Face m_face;
+  util::Scheduler m_scheduler;
+  unique_ptr<util::NetworkMonitor> m_networkMonitor;
+  boost::asio::signal_set m_terminationSignalSet;
+  
   std::string m_programName;
   int m_pollPeriod;
   int m_timeoutPeriod;
@@ -315,6 +338,7 @@ main(int argc, char* argv[])
   }
   file.close();
   
+  ndnmapServer.startScheduling();
   ndnmapServer.run();
   
   std::cout << "exit server..." << std::endl;

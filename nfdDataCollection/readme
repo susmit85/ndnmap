@@ -1,5 +1,5 @@
 To build this directory:
-	./waf configure --with-c++11
+	./waf configure 
 	./waf
 
 -------------
