@@ -60,9 +60,9 @@
         "_real_position": [ 34.07282250, -118.43873980 ],
         "position": [ 34.4, -117.14807210 ]
     },
-    "UCSD": {
+    "CAIDA": {
         "name": "University of California San Diego",
-        "shortname": "CAIDA/UCSD",
+        "shortname": "CAIDA",
         "site": "http://click.caida.org:80/",
         "backbone": false,
         "_real_position": [ 32.87357720, -117.23781110 ],
