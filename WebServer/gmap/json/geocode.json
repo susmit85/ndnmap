@@ -187,5 +187,12 @@
         "site": "http://128.252.153.194:80/",
         "backbone": false,
         "position": [ 48.1, 16.2]
+    },
+    "NTNU": {
+        "name": "Norwegian University of Science and Technology",
+        "shortname": "NTNU",
+        "site": "http://129.241.208.115:80/",
+        "backbone": false,
+        "position": [ 28.1, 16.2]
     }
 }
