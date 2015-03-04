@@ -304,5 +304,35 @@
         "nlsr_weight": 15,
         "start": "ORANGE",
         "end": "PADUA"
+    },
+    {
+        "id": 56,
+        "nlsr_weight": 62,
+        "start": "NTNU",
+        "end": "NEU"
+    },
+    {
+        "id": 57,
+        "nlsr_weight": 25,
+        "start": "NTNU",
+        "end": "LIP6"
+    },
+    {
+        "id": 58,
+        "nlsr_weight": 24,
+        "start": "NTNU",
+        "end": "SYSTEMX"
+    },
+    {
+        "id": 59,
+        "nlsr_weight": 30,
+        "start": "NTNU",
+        "end": "BASEL"
+    },
+    {
+        "id": 60,
+        "nlsr_weight": 107,
+        "start": "NTNU",
+        "end": "PKU"
     }
 ]
