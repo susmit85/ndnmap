@@ -159,6 +159,7 @@ namespace ndn {
       shared_ptr<OBufferStream> buffer = make_shared<OBufferStream>();
       
       Interest interest("/localhost/nfd/faces/list");
+      interest.setChildSelector(0);
       interest.setMustBeFresh(true);
       
       m_face.expressInterest(interest,
