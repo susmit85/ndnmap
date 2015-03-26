@@ -168,8 +168,14 @@
         "end": "BUPT"
     },
     {
+        "id": 29,
+        "nlsr_weight": 18,
+        "start": "TONGJI",
+        "end": "BUPT"
+    },
+    {
         "id": 30,
-        "nlsr_weight": 15,
+        "nlsr_weight": 18,
         "start": "ORANGE",
         "end": "URJC"
     },
@@ -214,6 +220,12 @@
         "nlsr_weight": 48,
         "start": "WASEDA",
         "end": "BUPT"
+    },
+    {
+        "id": 38,
+        "nlsr_weight": 98,
+        "start": "WASEDA",
+        "end": "TONGJI"
     },
     {
         "id": 39,
@@ -268,6 +280,12 @@
         "nlsr_weight": 22,
         "start": "ANYANG",
         "end": "WASEDA"
+    },
+    {
+        "id": 48,
+        "nlsr_weight": 54,
+        "start": "ANYANG",
+        "end": "TONGJI"
     },
     {
         "id": 49,
