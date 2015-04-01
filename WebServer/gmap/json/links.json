@@ -352,5 +352,23 @@
         "nlsr_weight": 107,
         "start": "NTNU",
         "end": "PKU"
+    },
+    {
+        "id": 61,
+        "nlsr_weight": 25,
+        "start": "VERISIGN",
+        "end": "MEMPHIS"
+    },
+    {
+        "id": 62,
+        "nlsr_weight": 25,
+        "start": "VERISIGN",
+        "end": "WU"
+    },
+    {
+        "id": 63,
+        "nlsr_weight": 25,
+        "start": "VERISIGN",
+        "end": "MICH"
     }
 ]
