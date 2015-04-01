@@ -177,7 +177,7 @@
     "VERISIGN": {
         "name": "Verisign",
         "shortname": "VERISIGN",
-        "site": "http://128.252.153.194:80/",
+        "site": "http://72.13.58.118:80/",
         "backbone": false,
         "position": [ 38.14907010, -77.5 ]
     },
