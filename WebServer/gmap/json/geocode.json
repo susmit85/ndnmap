@@ -167,6 +167,13 @@
         "backbone": false,
         "position": [ 37.7, 127.00]
     },
+    "KISTI": {
+        "name": "Korea Institute of Science and Technology Information",
+        "shortname": "KISTI",
+        "site": "http://0.0.0.0:80/",
+        "backbone": false,
+        "position": [ 30.0, 130.00]
+    },
     "PADUA": {
         "name": "University of Padua",
         "shortname": "PADUA",
