@@ -355,19 +355,19 @@
     },
     {
         "id": 61,
-        "nlsr_weight": 25,
+        "nlsr_weight": 18,
         "start": "VERISIGN",
         "end": "UM"
     },
     {
         "id": 62,
-        "nlsr_weight": 25,
+        "nlsr_weight": 15,
         "start": "VERISIGN",
         "end": "WU"
     },
     {
         "id": 63,
-        "nlsr_weight": 25,
+        "nlsr_weight": 16,
         "start": "VERISIGN",
         "end": "MICH"
     }
