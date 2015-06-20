@@ -370,5 +370,29 @@
         "nlsr_weight": 16,
         "start": "VERISIGN",
         "end": "MICH"
+    },
+    {
+        "id": 64,
+        "nlsr_weight": 16,
+        "start": "KISTI",
+        "end": "ANYANG"
+    },
+    {
+        "id": 65,
+        "nlsr_weight": 16,
+        "start": "KISTI",
+        "end": "WASEDA"
+    },
+    {
+        "id": 66,
+        "nlsr_weight": 16,
+        "start": "KISTI",
+        "end": "BUPT"
+    },
+    {
+        "id": 67,
+        "nlsr_weight": 16,
+        "start": "KISTI",
+        "end": "CSU"
     }
 ]

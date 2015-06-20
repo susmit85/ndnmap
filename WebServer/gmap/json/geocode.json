@@ -172,7 +172,8 @@
         "shortname": "KISTI",
         "site": "http://0.0.0.0:80/",
         "backbone": false,
-        "position": [ 30.0, 130.00]
+        "_real_position": [ 36.8, 127.50],
+        "position": [ 36.0, 127.50]
     },
     "PADUA": {
         "name": "University of Padua",
