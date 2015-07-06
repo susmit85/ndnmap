@@ -170,7 +170,7 @@
     "KISTI": {
         "name": "Korea Institute of Science and Technology Information",
         "shortname": "KISTI",
-        "site": "http://0.0.0.0:80/",
+        "site": "http://203.253.235.168:80/",
         "backbone": false,
         "_real_position": [ 36.8, 127.50],
         "position": [ 36.0, 127.50]
