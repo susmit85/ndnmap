@@ -106,19 +106,43 @@ namespace ndn {
         if(got == m_remoteLinks.end())
           continue;
         
-        FaceStatus linkStatus;
-        linkStatus.setTx(faceStatus.getNOutBytes());
-        linkStatus.setRx(faceStatus.getNInBytes());
-        linkStatus.setFaceId(faceStatus.getFaceId());
-        linkStatus.setLinkIp(remoteIp);
-        linkStatus.setTimestamp(currentTime);
+        bool foundExisting = false;
+        // first, check if the link already exists in the
+        for (std::vector<FaceStatus>::iterator it = content.m_statusList.begin() ; it != content.m_statusList.end(); ++it)
+        {
+          if((*it).getLinkIp() == remoteIp)
+          {
+            foundExisting = true;
+            // Link already exists in the content list
+            if (DEBUG)
+              std::cout << "Link " << remoteIp << " already exists - add statistics to the same content item" << std::endl;
+            
+            // add the statistics
+            (*it).setTx((*it).getTx() + faceStatus.getNOutBytes());
+            (*it).setRx((*it).getRx() + faceStatus.getNInBytes());
+            
+            if (DEBUG)
+              std::cout << "modified content: Face " << faceStatus.getFaceId() << " will be reported with face " << (*it).getFaceId() << ". Added values: " <<  faceStatus.getNInBytes() << ", " << faceStatus.getNOutBytes() << ", " << (*it).getLinkIp() << std::endl;
+          }
+        }
+        if(!foundExisting)
+        {
+          FaceStatus linkStatus;
+          linkStatus.setTx(faceStatus.getNOutBytes());
+          linkStatus.setRx(faceStatus.getNInBytes());
+          linkStatus.setFaceId(faceStatus.getFaceId());
+          linkStatus.setLinkIp(remoteIp);
+          linkStatus.setTimestamp(currentTime);
+          
+          // remove the remoteIP from the list of links to search and add it to the data packet
+          // Comment the next line to enable multiple links for the same IP
+          // m_remoteLinks.erase(remoteIp);
+          content.add(linkStatus);
+          
+          if (DEBUG)
+            std::cout << "about to send back " << linkStatus.getFaceId() << ": " << linkStatus.getRx() << ", " << linkStatus.getTx() << ", " << linkStatus.getLinkIp() << std::endl;
+        }
         
-        // remove the remoteIP from the list of links to search and add it to the data packet
-        m_remoteLinks.erase(remoteIp);
-        content.add(linkStatus);
-        
-        if (DEBUG)
-          std::cout << "about to send back " << linkStatus.getFaceId() << ": " << linkStatus.getRx() << ", " << linkStatus.getTx() << ", " << linkStatus.getLinkIp() << std::endl;
       }
       
       if (content.size() != 0)
@@ -179,11 +203,14 @@ namespace ndn {
         std::cout << "received interest: " << interest.getName() << std::endl;
       
       int numberOfComponents = interestName.size();
-      if(!m_remoteLinks.empty())
-      {
-        std::cerr << "remote links list is not empty - check for a missing reports!!" << std::endl;
-        m_remoteLinks.clear();
-      }
+      
+      // comment the next line since we are not erasing the remote links requests anymore when finding a local face with the same link
+      m_remoteLinks.clear();
+//      if(!m_remoteLinks.empty())
+//      {
+//        std::cerr << "remote links list is not empty - check for a missing reports!!" << std::endl;
+//        m_remoteLinks.clear();
+//      }
       for(int i = name.size(); i < numberOfComponents; ++i)
       {
         m_remoteLinks.insert(interestName[i].toUri());
