@@ -39,7 +39,7 @@
     "UIUC": {
         "name": "University of Illinois, Urbana-Champaign",
         "shortname": "UIUC",
-        "site": "http://tarekb17.cs.uiuc.edu:80/",
+        "site": "http://ndnx.cs.illinois.edu:80/",
         "backbone": false,
         "_real_position": [ 40.10260390, -88.23171080000002 ],
         "position": [ 40.60260390, -88.23171080000002 ]
