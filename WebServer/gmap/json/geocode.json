@@ -119,7 +119,7 @@
     "ORANGE": {
         "name": "Orange Labs",
         "shortname": "ORANGE",
-        "site": "http://161.105.194.154:80/",
+        "site": "http://161.105.195.18:80/",
         "backbone": false,
         "_real_position": [ 47.0, 2.3],
         "position": [ 47.5, 2.8]
